@@ -17,7 +17,7 @@ export const Navbar = React.createClass({
 
     render() {
         return (
-            <nav className="header-nav navbar navbar-default navbar-static-top">
+            <nav className="header-nav navbar navbar-default navbar-static-top navbar-center">
                 <div className="container-fluid">
                     <div className="col-xs-1"/>
                     <div className="navbar-header">
@@ -27,9 +27,6 @@ export const Navbar = React.createClass({
                             <span className="icon-bar"></span>
                             <span className="icon-bar"></span>
                         </button>
-                        <Link to="/" className="navbar-brand">
-                            <img style={{height: 90}} src="/img/logo.png"/>
-                        </Link>
                     </div>
 
                     { this.state.open ? <NavbarMenu collapse={!this.state.open} location={this.props.location}/> : false }

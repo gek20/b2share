@@ -31,7 +31,7 @@ html {
 
 /* New branding */
 .page-wrap .primary-header {
-    background: #264899;
+    background: #3A66E3;
     padding: 0 8.3333vw
 }
 
@@ -93,7 +93,7 @@ html {
 
 div .page-wrap .footer {
     font-family: 'Ubuntu', sans-serif;
-    background-color: #2C2C2C;
+    background-color: #000000;
     margin: 0;
     padding: 1vw 8.3333vw
 }
@@ -211,13 +211,14 @@ input:focus, select:focus, textarea:focus, button:focus, a:focus {
 }
 
 .btn-primary {
-  background-color: #264899;
-  border-color: #264899;
+  background-color: #3A66E3;
+  border-color: #3A66E3;
 }
 
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
   color: #ffffff;
-  background-color: #ff5400;
+  background-color: #52C1A1;
+  border-color: #52C1A1;
 }
 
 .unselectable {
@@ -413,17 +414,24 @@ input:focus, select:focus, textarea:focus, button:focus, a:focus {
 /*** navbar ***/
 
 .eudat-topmost-line, .eudat-topmost-line * {
-  background-color: #E5601E;
+  background-color: #303193;
   color: white;
   font-size: 13px;
 }
+
+.logo-container {
+  margin-left: 180px;
+  padding: 10px;
+  background: white url('/img/pattern.svg') no-repeat right top;
+}
+
 .eudat-topmost-line *:hover {
   color: orange;
 }
 
 .navbar-default {
   margin-bottom: 0;
-  background: white url('/img/pattern.svg') no-repeat right top;
+  background-color: #FFFFFF;
   background-size: contain;
 }
 
@@ -434,6 +442,11 @@ a.navbar-brand {
   display: table;
   padding: 15px;
 }
+
+.navbar-center {
+  align-content: flex-start;
+}
+
 @media (min-width: 768px) {
   .nav-search {
     margin-right: 220px;
@@ -446,7 +459,9 @@ a.navbar-brand {
 
 .navbar-nav {
   margin-top: 0.5em;
+  margin-left: 155px
 }
+
 .navbar-nav.user {
   padding-right: 1em;
 }
@@ -473,8 +488,8 @@ a.navbar-brand {
 
 @media (min-width: 1024px) {
   .navbar-nav.user {
-    float:right;
-    margin-right: 220px;
+    float: right;
+    margin-left: 150px;
   }
 }
 @media (min-width: 768px) {
@@ -737,9 +752,9 @@ a.navbar-brand {
 }
 
 .community-small.active {
-  color: #F45D00;
-  border: 1px solid #F45D00;
-  box-shadow: 0 0 10px #F45D00 !important;
+  color: #52C1A1;
+  border: 1px solid #52C1A1;
+  box-shadow: 0 0 10px #52C1A1 !important;
 }
 
 .community-small.passive {
@@ -792,8 +807,8 @@ a.navbar-brand {
 }
 
 .community-list-page .community.link:hover {
-  border: 1px solid #F45D00;
-  box-shadow: 0 0 10px #F45D00 !important;
+  border: 1px solid #52C1A1;
+  box-shadow: 0 0 10px #52C1A1 !important;
 }
 
 .community-list-page .community img.logo {

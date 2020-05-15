@@ -32,7 +32,6 @@ module.exports = {
         }),
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/), // trim down moment.js
         new webpack.optimize.OccurenceOrderPlugin(),
-         
         new CleanWebpackPlugin('js', cleanOptions),
 
         //inject false prevents script tag from being automatically injected
@@ -50,6 +49,7 @@ module.exports = {
             }
         }),
     ],
+
     module: {
         loaders: [
             {   test: /\.jsx?$/,
@@ -59,4 +59,6 @@ module.exports = {
             }
         ]
     }
+
+
 };

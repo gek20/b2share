@@ -45,16 +45,17 @@ const NavbarMenu = React.createClass({
         return (
             <div className={cname + " navbar-collapse"} id="header-navbar-collapse">
                 <NavbarSearch location={this.props.location} visibility={!hideSearchBar}/>
-
-                <ul className="nav navbar-nav text-uppercase">
-                    <li> <Link to="/help"> Help </Link> </li>
-                    <li> <Link to="/communities"> Communities </Link> </li>
-                    <li> <Link to="/records/new"> Upload </Link> </li>
-                    <li> <a href="https://www.eudat.eu/support-request?service=B2SHARE" target="_blank"> Contact </a> </li>
-                </ul>
-                <ul className="nav navbar-nav user">
-                    <NavbarUser user={serverCache.getUser()}/>
-                </ul>
+                <div className= "navbar-lower">
+                  <ul className="nav navbar-nav text-uppercase">
+                      <li> <Link to="/help"> Help </Link> </li>
+                      <li> <Link to="/communities"> Communities </Link> </li>
+                      <li> <Link to="/records/new"> Upload </Link> </li>
+                      <li> <a href="https://www.eudat.eu/support-request?service=B2SHARE" target="_blank"> Contact </a> </li>
+                    </ul>
+                    <ul className="nav navbar-nav user">
+                      <NavbarUser user={serverCache.getUser()}/>
+                      </ul>
+              </div>
             </div>
         );
     }

@@ -206,7 +206,7 @@ input, select, textarea {
   border: 1px solid #ccc;
 }
 input:focus, select:focus, textarea:focus, button:focus, a:focus {
-  box-shadow: 0 0 10px #264899 !important;
+  box-shadow: 0 0 10px #264899;
   outline: none !important;
 }
 

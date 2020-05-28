@@ -207,12 +207,13 @@ def check_configuration(config, logger):
     check('JSONSCHEMAS_HOST')
     check('PREFERRED_URL_SCHEME')
 
-    check('B2ACCESS_APP_CREDENTIALS')
+    '''check('B2ACCESS_APP_CREDENTIALS')
     if not config['B2ACCESS_APP_CREDENTIALS'].get('consumer_key'):
         error("Environment variable not defined: B2ACCESS_CONSUMER_KEY")
     if not config['B2ACCESS_APP_CREDENTIALS'].get('consumer_secret'):
         error("Environment variable not defined: B2ACCESS_SECRET_KEY")
-
+    '''
+    
     site_function = config.get('SITE_FUNCTION')
     if site_function and site_function != 'demo':
         if config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite'):

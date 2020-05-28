@@ -34,6 +34,7 @@ from flask import request
 from invenio_records_rest.utils import deny_all, allow_all
 from b2share.modules.oauthclient.b2access import make_b2access_remote_app
 from b2share.modules.roles import B2ShareRoles
+from b2share.modules.oauthclient.cscaai import make_cscaai_remote_app
 from b2share.modules.records.search import B2ShareRecordsSearch
 from b2share.modules.records.permissions import (
     UpdateRecordPermission, DeleteRecordPermission
@@ -203,12 +204,26 @@ B2ACCESS_APP_CREDENTIALS = dict(
 )
 
 
+CSCAAI_APP_CREDENTIALS = dict(
+    # CSCAAI authentication key and secre
+    consumer_key=os.environ.get("CSCAAI_CONSUMER_KEY"),
+    consumer_secret=os.environ.get("CSCAAI_SECRET_KEY"),
+)
+
+
 B2ACCESS_BASE_URL = 'https://b2access.eudat.eu/'
 if os.environ.get("USE_STAGING_B2ACCESS"):
     B2ACCESS_BASE_URL = 'https://unity.eudat-aai.fz-juelich.de/'
 
+CSCAAI_ALLOWED_ORGANIZATIONS = os.environ.get("B2SHARE_ALLOWED_ORGANIZATIONS")
+
+CSCAAI_BASE_URL = 'https://user-auth.csc.fi/'
+if os.environ.get("USE_STAGING_CSCAAI"):
+    CSCAAI_BASE_URL = 'https://test-user-auth.csc.fi/'
+
 OAUTHCLIENT_REMOTE_APPS = dict(
-    b2access=make_b2access_remote_app(B2ACCESS_BASE_URL)
+    b2access=make_b2access_remote_app(B2ACCESS_BASE_URL),
+    cscaai=make_cscaai_remote_app(CSCAAI_BASE_URL)
 )
 
 # Don't let Invenio Accounts register Flask Security

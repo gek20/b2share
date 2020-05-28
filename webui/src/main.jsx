@@ -55,6 +55,12 @@ const AppFrame = React.createClass({
         serverCache.store.onChange = this.updateStateOnTick;
     },
 
+    componentDidMount() {
+        if (window.location.hash === '#wrongOrganization') {
+            notifications.danger("Wrong organization")
+        }
+    },
+
     render() {
         // adding a mutating ref is necessary to propagate changes
         const additionalProps = {dataRef: this.state.dataRef,  pathName: this.props.location.pathname}
@@ -91,7 +97,7 @@ const Frame = React.createClass({
 
 
 function testNewPage(prev, next) {
-    if (prev.location.pathname === next.location.pathname) {
+    if ((prev.location.pathname === next.location.pathname) && (prev.location.hash === next.location.hash)) {
         return;
     }
     notifications.clearAll();

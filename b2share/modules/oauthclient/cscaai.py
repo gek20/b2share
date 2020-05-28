@@ -21,7 +21,7 @@
 # waive the privileges and immunities granted to it by virtue of its status
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
-"""EUDAT B2ACCESS OAuth configuration."""
+"""EUDAT CSCAAI OAuth configuration."""
 
 import base64
 
@@ -41,32 +41,31 @@ from invenio_oauthclient.utils import oauth_authenticate, oauth_get_user, \
     oauth_link_external_id
 
 
-def make_b2access_remote_app(base_url):
-    access_token_url = urljoin(base_url, 'oauth2/token')
-    authorize_url = urljoin(base_url, 'oauth2-as/oauth2-authz')
-    tokeninfo_url = urljoin(base_url, 'oauth2/tokeninfo')
-    userinfo_url = urljoin(base_url, 'oauth2/userinfo')
+def make_cscaai_remote_app(base_url):
+    access_token_url = urljoin(base_url, 'idp/profile/oidc/token')
+    authorize_url = urljoin(base_url, 'idp/profile/oidc/authorize')
+    tokeninfo_url = urljoin(base_url, 'idp/profile/oidc/keyset')
+    userinfo_url = urljoin(base_url, 'idp/profile/oidc/userinfo')
     return dict(
-        title='B2Access',
-        description='EUDAT B2Access authentication.',
+        title='CSCAAI',
+        description='EUDAT CSCAAI authentication.',
         icon='',
-        authorized_handler='b2share.modules.oauthclient.b2access:authorized_signup_handler',
-        disconnect_handler='b2share.modules.oauthclient.b2access:disconnect_handler',
+        authorized_handler='b2share.modules.oauthclient.cscaai:authorized_signup_handler',
+        disconnect_handler='b2share.modules.oauthclient.cscaai:disconnect_handler',
         signup_handler=dict(
-            info='b2share.modules.oauthclient.b2access:account_info',
-            setup='b2share.modules.oauthclient.b2access:account_setup',
-            view='b2share.modules.oauthclient.b2access:signup_handler',
+            info='b2share.modules.oauthclient.cscaai:account_info',
+            setup='b2share.modules.oauthclient.cscaai:account_setup',
+            view='b2share.modules.oauthclient.cscaai:signup_handler',
         ),
-        remote_app='b2share.modules.oauthclient.b2access:B2AccessOAuthRemoteApp',
+        remote_app='b2share.modules.oauthclient.cscaai:CSCAAIOAuthRemoteApp',
         params=dict(
-            request_token_params={'scope': 'USER_PROFILE GENERATE_USER_CERTIFICATE'},
+            request_token_params={'scope': 'openid'},
             base_url=base_url,
             request_token_url=None,
             access_token_url=access_token_url,
             access_token_method='POST',
             authorize_url=authorize_url,
-            app_key='B2ACCESS_APP_CREDENTIALS',
-            
+            app_key='CSCAAI_APP_CREDENTIALS',
         ),
         tokeninfo_url=tokeninfo_url,
         userinfo_url=userinfo_url,
@@ -74,12 +73,12 @@ def make_b2access_remote_app(base_url):
     )
 
 
-class B2AccessOAuthRemoteApp(OAuthRemoteApp):
+class CSCAAIOAuthRemoteApp(OAuthRemoteApp):
     """Custom OAuth remote app handling Basic HTTP Authentication (RFC2617)."""
 
     def __init__(self, *args, **kwargs):
         """Constructor."""
-        super(B2AccessOAuthRemoteApp, self).__init__(*args, **kwargs)
+        super(CSCAAIOAuthRemoteApp, self).__init__(*args, **kwargs)
 
     def handle_oauth2_response(self):
         """Handles an oauth2 authorization response.
@@ -104,8 +103,9 @@ class B2AccessOAuthRemoteApp(OAuthRemoteApp):
             ),
         }
         remote_args.update(self.access_token_params)
+
         # build the Basic HTTP Authentication code
-        b2access_basic_auth = base64.encodestring(bytes('{0}:{1}'.format(
+        cscaai_basic_auth = base64.encodestring(bytes('{0}:{1}'.format(
             self.consumer_key, self.consumer_secret),
             'utf-8')).decode('ascii').replace('\n', '')
         body = client.prepare_request_body(**remote_args)
@@ -113,7 +113,7 @@ class B2AccessOAuthRemoteApp(OAuthRemoteApp):
             self.expand_url(self.access_token_url),
             # set the Authentication header
             headers={
-                'Authorization': 'Basic {}'.format(b2access_basic_auth),
+                'Authorization': 'Basic {}'.format(cscaai_basic_auth),
             },
             data=to_bytes(body, self.encoding),
             method=self.access_token_method,
@@ -129,6 +129,7 @@ class B2AccessOAuthRemoteApp(OAuthRemoteApp):
 
 
 def authorized_signup_handler(resp, remote, *args, **kwargs):
+
     """Handle sign-in/up functionality.
 
     This is needed as we don't use Flask Forms (for now), thus the default
@@ -156,6 +157,12 @@ def authorized_signup_handler(resp, remote, *args, **kwargs):
             account_info=account_info,
             access_token=token_getter(remote)[0],
         )
+
+        # Check organisation
+        organization = account_info.get('organization')
+        if not organization in current_app.config.get('CSCAAI_ALLOWED_ORGANIZATIONS'):
+            return wrong_organization()
+
         if user is None:
             # Auto sign-up if user not found
             user = oauth_register(account_info)
@@ -181,6 +188,8 @@ def authorized_signup_handler(resp, remote, *args, **kwargs):
 
     return redirect('/')
 
+def wrong_organization():
+    return redirect('/#wrongOrganization')
 
 def oauth_register(account_info):
     """Register new OAuth users.
@@ -205,7 +214,7 @@ def oauth_register(account_info):
 def disconnect_handler(remote, *args, **kwargs):
     """Handle unlinking of remote account.
 
-    Disconnecting B2Access accounts is disabled.
+    Disconnecting CSCAAI accounts is disabled.
     """
     return abort(404)
 
@@ -248,7 +257,8 @@ def account_info(remote, resp):
                 # profile=dict(full_name=username)
             ),
             external_id=dict_content.get('unity:persistent'),
-            external_method='B2ACCESS'
+            external_method='CSCAAI',
+            organization=dict_content.get('schacHomeOrganization')
         )
     except http.HTTPError as response:
         content = response.read()

@@ -202,7 +202,6 @@ def oauth_register(account_info):
     user_data['password'] = ''
     user = register_user(**user_data)
     # Create user <-> external id link.
-
     oauth_link_external_id(
         user, dict(
             id=str(account_info.get('external_id')),

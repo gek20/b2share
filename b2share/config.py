@@ -205,7 +205,7 @@ B2ACCESS_APP_CREDENTIALS = dict(
 
 
 CSCAAI_APP_CREDENTIALS = dict(
-    # CSCAAI authentication key and secre
+    # CSCAAI authentication key and secret
     consumer_key=os.environ.get("CSCAAI_CONSUMER_KEY"),
     consumer_secret=os.environ.get("CSCAAI_SECRET_KEY"),
 )
@@ -217,7 +217,7 @@ if os.environ.get("USE_STAGING_B2ACCESS"):
 
 CSCAAI_ALLOWED_ORGANIZATIONS = os.environ.get("B2SHARE_ALLOWED_ORGANIZATIONS")
 
-CSCAAI_BASE_URL = 'http://user-auth.csc.fi/'
+CSCAAI_BASE_URL = 'https://user-auth.csc.fi/'
 if os.environ.get("USE_STAGING_CSCAAI"):
     CSCAAI_BASE_URL = 'https://test-user-auth.csc.fi/'
 
@@ -225,6 +225,8 @@ OAUTHCLIENT_REMOTE_APPS = dict(
     b2access=make_b2access_remote_app(B2ACCESS_BASE_URL),
     cscaai=make_cscaai_remote_app(CSCAAI_BASE_URL)
 )
+
+
 
 # Don't let Invenio Accounts register Flask Security
 ACCOUNTS_REGISTER_BLUEPRINT = False

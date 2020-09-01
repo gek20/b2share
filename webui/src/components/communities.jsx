@@ -26,6 +26,7 @@ export const CommunityListRoute = React.createClass({
 export const CommunityRoute = React.createClass({
     render() {
         const { id } = this.props.params; // community id or name
+        
         const community = serverCache.getCommunity(id);
         if (!community) {
             return <Wait/>;
@@ -55,7 +56,7 @@ const CommunityList = React.createClass({
         const logo = community.get('logo') || "";
         return (
             <div className="col-sm-6 col-lg-4" key={id}>
-                <Link to={"/communities/"+name}>
+                <Link to={"/communities/"+id}>
                     <div className="community link">
                         <h3 className="name">{name}</h3>
                         <img className="logo" src={logo}/>

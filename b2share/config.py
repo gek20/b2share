@@ -217,7 +217,7 @@ if os.environ.get("USE_STAGING_B2ACCESS"):
 
 CSCAAI_ALLOWED_ORGANIZATIONS = os.environ.get("B2SHARE_ALLOWED_ORGANIZATIONS")
 
-CSCAAI_BASE_URL = 'https://user-auth.csc.fi/'
+CSCAAI_BASE_URL = 'http://user-auth.csc.fi/'
 if os.environ.get("USE_STAGING_CSCAAI"):
     CSCAAI_BASE_URL = 'https://test-user-auth.csc.fi/'
 

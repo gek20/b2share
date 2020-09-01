@@ -1,3 +1,4 @@
+*.csc.fi
 *.clisp.mem
 *.cmucl.core
 *.egg-info

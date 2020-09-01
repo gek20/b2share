@@ -31,7 +31,7 @@ import pkg_resources
 from ..api import UpgradeRecipe
 
 
-migrate_2_1_3_to_2_1_4 = UpgradeRecipe('2.1.4', '2.1.5')
+migrate_2_1_4_to_2_1_5 = UpgradeRecipe('2.1.4', '2.1.5')
 
 # No changes to Elasticsearch mappings
 

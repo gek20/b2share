@@ -575,6 +575,7 @@ class ServerCache {
     }
 
     getUser() {
+        console.log("User", this.store.getIn(['user']))
         return this.store.getIn(['user']);
     }
 

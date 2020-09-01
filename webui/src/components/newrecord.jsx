@@ -49,7 +49,7 @@ export const NewRecordRoute = React.createClass({
         const cid = community.get('id');
         const selected = cid === this.state.community_id;
         return (
-            <div className="col-lg-2 col-sm-3 col-xs-6" key={community.get('id')}>
+            <div className="col-lg-3 col-sm-4 col-xs-4" key={community.get('id')}>
                 { renderSmallCommunity(community, selected, this.selectCommunity.bind(this, cid)) }
             </div>
         );

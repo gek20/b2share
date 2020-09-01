@@ -23,7 +23,6 @@ export const HomeRoute = React.createClass({
                             { training_site ?
                                 <p>Please use <a href={training_site}>{training_site}</a> for testing or training.</p>
                                 : false }
-                            { (user && user.get('name')) ? false : <LoginOrRegister b2access_registration_link={b2access}/> }
                         </div>
                         <hr/>
                         <div className="row">

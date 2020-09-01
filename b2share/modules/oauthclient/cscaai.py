@@ -59,7 +59,7 @@ def make_cscaai_remote_app(base_url):
         ),
         remote_app='b2share.modules.oauthclient.cscaai:CSCAAIOAuthRemoteApp',
         params=dict(
-            request_token_params={'scope': 'openid'},
+            request_token_params={'scope': 'openid', 'acr_values': 'https://user-auth.csc.fi/LoginHaka'},
             base_url=base_url,
             request_token_url=None,
             access_token_url=access_token_url,
@@ -202,6 +202,7 @@ def oauth_register(account_info):
     user_data['password'] = ''
     user = register_user(**user_data)
     # Create user <-> external id link.
+
     oauth_link_external_id(
         user, dict(
             id=str(account_info.get('external_id')),
@@ -256,7 +257,7 @@ def account_info(remote, resp):
                 # Fixme add this once we support user profiles
                 # profile=dict(full_name=username)
             ),
-            external_id=dict_content.get('unity:persistent'),
+            external_id= dict_content.get('eppn'),
             external_method='CSCAAI',
             organization=dict_content.get('schacHomeOrganization')
         )

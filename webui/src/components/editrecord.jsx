@@ -2,6 +2,7 @@ import React from 'react/lib/ReactWithAddons';
 import { Link } from 'react-router'
 import { Map, List, fromJS } from 'immutable';
 import { compare } from 'fast-json-patch';
+import { groupBy } from 'lodash';
 
 import Toggle from 'react-toggle';
 import { DateTimePicker, Multiselect, DropdownList, NumberPicker } from 'react-widgets';
@@ -488,9 +489,18 @@ const EditRecordFieldTree = React.createClass({
         const onblur = () => { this.setFieldDescription(null); }
         const title = schema.get('title');
         const spath = path.slice((path.indexOf(this.props.schemaID) || -1) + 1)
+        const subheading = schema.get('subheading');
         return (
             <div className="row" key={id}>
-                <div style={{marginBottom:'0.5em'}}>
+                { subheading &&
+                    <div>
+                        <div className='col-sm-3' />
+                        <div className='col-sm-9'>
+                            <h4>{subheading}</h4>
+                        </div>
+                    </div>
+                }
+                <div key={id} style={{marginBottom:'0.5em'}} title={schema.get('description')}>
                     {!title ? false :
                         <label htmlFor={id} className="col-sm-3 control-label" style={{fontWeight:'bold'}}>
                             <span style={{float:'right', color:isError?'red':'black'}}>

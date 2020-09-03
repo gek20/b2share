@@ -24,6 +24,7 @@
 """EUDAT CSCAAI OAuth configuration."""
 
 import base64
+import os
 
 from urllib.parse import urljoin
 from flask import abort, current_app, redirect, request, \
@@ -46,6 +47,11 @@ def make_cscaai_remote_app(base_url):
     authorize_url = urljoin(base_url, 'idp/profile/oidc/authorize')
     tokeninfo_url = urljoin(base_url, 'idp/profile/oidc/keyset')
     userinfo_url = urljoin(base_url, 'idp/profile/oidc/userinfo')
+    # This is used to force login via Haka
+    # https://wiki.eduuni.fi/pages/viewpage.action?spaceKey=CSCAAI&title=Bypassing+proxy+discovery+page
+    haka_acr_value = 'https://user-auth.csc.fi/LoginHaka'
+    if os.environ.get("USE_STAGING_CSCAAI"):
+        haka_acr_value = 'https://test-user-auth.csc.fi/LoginHaka'
     return dict(
         title='CSCAAI',
         description='EUDAT CSCAAI authentication.',
@@ -59,7 +65,7 @@ def make_cscaai_remote_app(base_url):
         ),
         remote_app='b2share.modules.oauthclient.cscaai:CSCAAIOAuthRemoteApp',
         params=dict(
-            request_token_params={'scope': 'openid', 'acr_values': 'https://user-auth.csc.fi/LoginHaka'},
+            request_token_params={'scope': 'openid', 'acr_values': haka_acr_value},
             base_url=base_url,
             request_token_url=None,
             access_token_url=access_token_url,

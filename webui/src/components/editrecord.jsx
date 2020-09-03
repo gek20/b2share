@@ -58,6 +58,10 @@ export const EditRecordRoute = React.createClass({
         if (this.isDraft) {
             serverCache.patchDraft(id, patch, onSuccessFn, onErrorFn);
         } else {
+            // Even thought the record is successfully created the browser doesn't update to the record page. Refreshing the page is one way to work around this issue.
+            // The patchDraft method is called to prevent the browser from freezing.
+            // TODO: Find a solution that doesn't involve also saving the draft. 
+            serverCache.patchDraft(id, patch, onSuccessFn, onErrorFn);
             serverCache.patchRecord(id, patch, onSuccessFn, onErrorFn);
         }
     },

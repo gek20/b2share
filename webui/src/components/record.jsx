@@ -533,6 +533,9 @@ const Record = React.createClass({
             if (excludeFields.includes(pid)) {
                 return false;
             }
+            if (!metadata) {
+                return false;
+            }
             const f = this.renderField(pid, pschema, metadata.get(pid));
             if (!f) {
                 return false;

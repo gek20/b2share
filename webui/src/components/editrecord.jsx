@@ -2,7 +2,6 @@ import React from 'react/lib/ReactWithAddons';
 import { Link } from 'react-router'
 import { Map, List, fromJS } from 'immutable';
 import { compare } from 'fast-json-patch';
-import { groupBy } from 'lodash';
 
 import Toggle from 'react-toggle';
 import { DateTimePicker, Multiselect, DropdownList, NumberPicker } from 'react-widgets';

@@ -14,6 +14,12 @@ export const SelectBig = React.createClass({
 
     maxResults: 50,
 
+    componentDidMount: function() {
+        if (this.props.defaultValue && !this.props.value) {
+            this.select(this.props.defaultValue)
+        }
+    },
+
     shouldComponentUpdate: function(nextProps, nextState) {
         const len = x => (x && x.length !== undefined) ? x.length : 0;
         // fast check, not exact, but should work for our use case

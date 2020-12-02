@@ -417,10 +417,16 @@ const EditRecordFieldTree = React.createClass({
             </EditRecordDataElement>
         } else if (objEquals(path, ['license', 'license'])) {
             field = this.renderScalarField(schema, path, this.addFieldButton(buttons, path.join('/'), 'license'));
-        } else if (objEquals(path, ['open_access'])) {
-            const embargo = this.props.funcs.getValue(schema, newpath('embargo_date'));
-            const disabled = embargo && moment(embargo).isValid();
-            field = this.renderScalarField(schema, path, {}, {disabled: disabled});
+        } else if (objEquals(path, ['language']) || objEquals(path, ['language_code'])) {
+            const languages = serverCache.getLanguages();
+            field = (languages instanceof Error) ? <Err err={languages}/> :
+                <SelectBig data={languages}
+                    onSelect={x=>this.setValue(schema, path, x)} value={this.getValue(path)} />;
+        } else if (path.length === 2 && path[0] === 'disciplines') {
+            const disciplines = serverCache.getDisciplines();
+            field = (disciplines instanceof Error) ? <Err err={disciplines}/> :
+                <SelectBig data={disciplines}
+                    onSelect={x=>this.setValue(schema, path, x)} value={this.getValue(path)} />;
         } else if (schema.get('type') === 'array') {
             const itemSchema = schema.get('items');
             const raw_values = this.props.funcs.getValue(path);
@@ -1020,9 +1026,6 @@ const EditRecord = React.createClass({
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-xs-12">
-                        { this.props.isDraft && this.renderFileBlock() }
-                    </div>
                     <div className="col-xs-12">
                         <form className="form-horizontal" onSubmit={this.updateRecord}>
                             <EditRecordBlock key={"root"} schemaID={null} schema={rootSchema} funcs={this.getChildFuncs()} setModal={s => { this.setState(s)}} />

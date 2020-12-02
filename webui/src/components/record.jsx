@@ -383,6 +383,8 @@ const Record = React.createClass({
     renderFileList(files, b2noteUrl, showDownloads) {
         const openAccess = this.props.record.getIn(['metadata', 'open_access']);
         const showAccessRequest = (!openAccess && !isRecordOwner(this.props.record));
+        const info = serverCache.getInfo();
+        const authzFormUrl = info.get('authz_form_url');
 
         let fileComponent = false;
         if (!(files && files.count && files.count())) {
@@ -412,7 +414,7 @@ const Record = React.createClass({
                 </div>
                 { fileComponent }
                 { showAccessRequest ?
-                    <Link to={`/records/${this.props.record.get('id')}/accessrequest`}>
+                    <Link to={`{authzFormUrl}{${this.props.record.get('id')}}`} target="_blank">
                         Request data access
                     </Link> : false }
             </div>

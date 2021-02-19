@@ -24,7 +24,6 @@
 """EUDAT CSCAAI OAuth configuration."""
 
 import base64
-import os
 
 from urllib.parse import urljoin
 from flask import abort, current_app, redirect, request, \
@@ -47,11 +46,6 @@ def make_cscaai_remote_app(base_url):
     authorize_url = urljoin(base_url, 'idp/profile/oidc/authorize')
     tokeninfo_url = urljoin(base_url, 'idp/profile/oidc/keyset')
     userinfo_url = urljoin(base_url, 'idp/profile/oidc/userinfo')
-    # This is used to force login via Haka
-    # https://wiki.eduuni.fi/pages/viewpage.action?spaceKey=CSCAAI&title=Bypassing+proxy+discovery+page
-    haka_acr_value = 'https://user-auth.csc.fi/LoginHaka'
-    if os.environ.get("USE_STAGING_CSCAAI"):
-        haka_acr_value = 'https://test-user-auth.csc.fi/LoginHaka'
     return dict(
         title='CSCAAI',
         description='EUDAT CSCAAI authentication.',
@@ -65,7 +59,7 @@ def make_cscaai_remote_app(base_url):
         ),
         remote_app='b2share.modules.oauthclient.cscaai:CSCAAIOAuthRemoteApp',
         params=dict(
-            request_token_params={'scope': 'openid', 'acr_values': haka_acr_value},
+            request_token_params={'scope': 'openid', 'acr_values': 'https://user-auth.csc.fi/LoginHaka'},
             base_url=base_url,
             request_token_url=None,
             access_token_url=access_token_url,
@@ -150,7 +144,6 @@ def authorized_signup_handler(resp, remote, *args, **kwargs):
     # current_user.is_autenticated().
     token = response_token_setter(remote, resp)
     handlers = current_oauthclient.signup_handlers[remote.name]
-
     # Sign-in/up user
     # ---------------
     if not current_user.is_authenticated:
@@ -210,7 +203,7 @@ def oauth_register(account_info):
     # Create user <-> external id link.
     oauth_link_external_id(
         user, dict(
-            id=str(account_info.get('external_id')),
+            id=str(account_info.get('eppn')),
             method=account_info.get('external_method')
         )
     )
@@ -256,15 +249,18 @@ def account_info(remote, resp):
             username = dict_content.get('userName')
         else:
             username = dict_content.get('cn')
+        org = dict_content.get('schacHomeOrganization')
+        if not org:
+            org = dict_content.get('virtuHomeOrganization')
         return dict(
             user=dict(
                 email=dict_content.get('email'),
                 # Fixme add this once we support user profiles
                 # profile=dict(full_name=username)
             ),
-            external_id= dict_content.get('eppn'),
+            eppn=dict_content.get('eppn'),
             external_method='CSCAAI',
-            organization=dict_content.get('schacHomeOrganization')
+            organization=org
         )
     except http.HTTPError as response:
         content = response.read()

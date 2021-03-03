@@ -47,10 +47,10 @@ const NavbarMenu = React.createClass({
                 <NavbarSearch location={this.props.location} visibility={!hideSearchBar}/>
                 <div className= "navbar-lower">
                   <ul className="nav navbar-nav text-uppercase">
-                      <li> <Link to="/help"> Help </Link> </li>
+                      <li> <a href="https://agora.fmi.fi/display/B2SHARE/Help" target="_blank"> Help </a> </li>
                       <li> <Link to="/communities"> Communities </Link> </li>
                       <li> <Link to="/records/new"> Upload </Link> </li>
-                      <li> <a href="https://www.eudat.eu/support-request?service=B2SHARE" target="_blank"> Contact </a> </li>
+                      <li> <a href="mailto:b2share-tuki@fmi.fi"> Contact </a> </li>
                     </ul>
                     <ul className="nav navbar-nav user">
                       <NavbarUser user={serverCache.getUser()}/>

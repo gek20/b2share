@@ -358,7 +358,7 @@ CELERY_BEAT_SCHEDULE = {
 # ePIC PID config
 # ===============
 
-CFG_HANDLE_SYSTEM_BASEURL = 'http://hdl.handle.net'
+CFG_HANDLE_SYSTEM_BASEURL = 'https://epic-pid.storage.surfsara.nl:8003'
 CFG_FAIL_ON_MISSING_PID = False
 CFG_FAIL_ON_MISSING_FILE_PID = False
 
@@ -399,7 +399,7 @@ PIDSTORE_DATACITE_PASSWORD = "XXXX"
 
 # for manual testing purposes, FAKE_DOI can be set to True
 # in which case a fake DOI will be generated for records
-# FAKE_DOI = False
+FAKE_DOI = True
 
 
 B2DROP_SERVER = {

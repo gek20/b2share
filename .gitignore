@@ -53,3 +53,4 @@ webui/app/js/
 webui/app/vendors/
 webui/src/version.js
 webui/package-lock.json
+webui/app/js/

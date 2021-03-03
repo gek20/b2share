@@ -49,7 +49,6 @@ module.exports = {
             }
         }),
     ],
-
     module: {
         loaders: [
             {   test: /\.jsx?$/,
@@ -59,6 +58,4 @@ module.exports = {
             }
         ]
     }
-
-
 };

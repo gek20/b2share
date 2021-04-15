@@ -718,6 +718,10 @@ a.navbar-brand {
     background-color: transparent;
 }
 
+.citation {
+  border: 1px solid black;
+}
+
 /*****************************************************************************/
 /* schemas */
 

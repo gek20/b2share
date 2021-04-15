@@ -10,11 +10,11 @@ import { keys, humanSize } from '../data/misc';
 import { ReplaceAnimate } from './animate.jsx';
 import { ImplodedList } from './common.jsx';
 import { Wait, Err } from './waiting.jsx';
-import { FileRecordHeader, FileRecordRow, PersistentIdentifier, copyToClipboard } from './editfiles.jsx';
+import { FileRecordHeader, FileRecordRow, PersistentIdentifier, copyToClipboard, CitationBox } from './editfiles.jsx';
 import { Versions } from './versions.jsx';
 import { getSchemaOrderedMajorAndMinorFields } from './schema.jsx';
 import PiwikTracker from 'piwik-react-router';
-
+import { Card } from 'react-bootstrap';
 const PT = React.PropTypes;
 
 
@@ -311,7 +311,6 @@ const Record = React.createClass({
         }
 
         const metadata = record.get('metadata') || Map();
-
         const descriptions = testget(metadata, 'descriptions');
         const disciplines = testget(metadata, 'disciplines');
         const keywords = testget(metadata, 'keywords');
@@ -322,7 +321,6 @@ const Record = React.createClass({
         return (
             <div>
                 <Versions isDraft={state == 'draft'} recordID={record.get('id')} versions={record.get('versions')} />
-
                 <div className="row">
                     <div className="col-sm-12">
                         { metadata.get('titles').map(renderTitle)}

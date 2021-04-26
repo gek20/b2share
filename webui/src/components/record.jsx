@@ -10,7 +10,7 @@ import { keys, humanSize } from '../data/misc';
 import { ReplaceAnimate } from './animate.jsx';
 import { ImplodedList } from './common.jsx';
 import { Wait, Err } from './waiting.jsx';
-import { FileRecordHeader, FileRecordRow, PersistentIdentifier, copyToClipboard, CitationBox } from './editfiles.jsx';
+import { FileRecordHeader, FileRecordRow, PersistentIdentifier, copyToClipboard, CitationBox, BibtexExport } from './editfiles.jsx';
 import { Versions } from './versions.jsx';
 import { getSchemaOrderedMajorAndMinorFields } from './schema.jsx';
 import PiwikTracker from 'piwik-react-router';
@@ -374,10 +374,29 @@ const Record = React.createClass({
         );
     },
 
-    fixedFields: [
-        'community', 'titles', 'descriptions', 'creators', 'keywords', 'disciplines', 'publication_state'
-    ],
+    fixedFields: {
+        'community': true, 'titles': true, 'descriptions': true,
+        'creators': true, 'keywords': true, 'disciplines': true, 'publication_state': true,
+    },
+    renderCitations(doi) {
+        return (
+            <div className="well">
+            <div className="row">
+                <h3 className="col-sm-9">
+                    { 'Cite as' }
+                </h3>
+            </div>
+            <div className="row">
+                <div className="col-sm-9"><CitationBox doi={doi}/></div>
+            <b className="col-sm-9">
+                    Copy BibTeX <BibtexExport doi={doi}/>
+            </b>
+            </div>
+            <a href="https://citation.crosscite.org/">More citation choices</a>
+            </div>
+        )
 
+    },
     renderFileList(files, b2noteUrl, showDownloads) {
         const openAccess = this.props.record.getIn(['metadata', 'open_access']);
         const showAccessRequest = (!openAccess && !isRecordOwner(this.props.record));
@@ -591,6 +610,8 @@ const Record = React.createClass({
             serverCache.createRecordVersion(record, newRecordID => browser.gotoEditRecord(newRecordID));
         }
         const state = record.get('metadata').get('publication_state');
+        const doi = record.get('metadata').get('DOI')
+        const showB2Note = serverCache.getInfo().get('show_b2note');
         return (
             <div className="container-fluid">
                 <div className="large-record bottom-line">
@@ -647,6 +668,7 @@ const Record = React.createClass({
                     </div>
                     <div className="row">
                         <div className="col-lg-6">
+                            { this.renderCitations(doi) }
                             { this.renderFileList(files, this.props.b2noteUrl, true) }
                         </div>
 

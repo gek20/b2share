@@ -42,10 +42,17 @@ from .xmlserializer import XMLSerializer
 from b2share.modules.records.serializers.response import record_responsify, \
     JSONSerializer
 
+
+# from invenio_records_rest.serializers.citeproc import CiteprocSerializer
+
 json_v1 = JSONSerializer(RecordSchemaJSONV1)
 json_v1_response = record_responsify(json_v1, 'application/json')
 json_v1_search = search_responsify(json_v1, 'application/json')
 
+#: CSL-JSON serializer
+# csl_v1 = JSONSerializer(RecordSchemaCSLJSON, replace_refs=True)
+#: CSL Citation Formatter serializer
+# citeproc_v1 = CiteprocSerializer(csl_v1)
 
 # OAI-PMH record serializers.
 dc_v1 = DublinCoreSerializer(RecordSchemaDublinCoreV1, replace_refs=True)

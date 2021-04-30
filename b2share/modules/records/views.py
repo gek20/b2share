@@ -47,11 +47,11 @@ from invenio_records_rest.views import (pass_record,
                                         RecordsListOptionsResource,
                                         SuggestResource,
                                         need_record_permission)
-from invenio_records_rest.errors import InvalidDataRESTError, PatchJSONFailureRESTError
-from invenio_rest.decorators import require_content_types
 from invenio_records_rest.links import default_links_factory
 from invenio_records_rest.query import default_search_factory
 from invenio_records_rest.utils import obj_or_import_string
+from invenio_records_rest.errors import InvalidDataRESTError, PatchJSONFailureRESTError
+from invenio_rest.decorators import require_content_types
 from invenio_mail import InvenioMail
 from flask_mail import Message
 from invenio_mail.tasks import send_email
@@ -64,8 +64,7 @@ from b2share.modules.deposit.serializers import json_v1_response as \
 from b2share.modules.deposit.api import Deposit, copy_data_from_previous
 from b2share.modules.deposit.errors import RecordNotFoundVersioningError, \
     IncorrectRecordVersioningError
-from b2share.modules.records.permissions import DeleteRecordPermission, \
-    UpdateRecordPermission
+from b2share.modules.records.permissions import DeleteRecordPermission
 from jsonpatch import JsonPatchException, JsonPointerException
 from invenio_pidstore.providers.datacite import DataCiteProvider
 
@@ -369,12 +368,18 @@ class B2ShareRecordResource(RecordResource):
     @need_record_permission('update_permission_factory')
     def patch(self, pid, record, **kwargs):
         """Modify a record.
+
         The data should be a JSON-patch, which will be applied to the record.
+
         Procedure description:
         #. The record is deserialized using the proper loader.
         #. The ETag is checked.
         #. The record is patched.
         #. The HTTP response is built with the help of the link factory.
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6cd4dde4 (Update DataCite metadata when patching records)
         :param pid: Persistent identifier for record.
         :param record: Record object.
         :returns: The modified record.
@@ -398,14 +403,14 @@ class B2ShareRecordResource(RecordResource):
                     doi = rec_pid
             doi_pid = PersistentIdentifier.get('doi', doi['value'])
             if doi_pid:
-                from .serializers import datacite_v31
+                from .serializers import datacite_v44
                 from .minters import make_record_url
                 try:
                     datacite_provider = DataCiteProvider(doi_pid)
-                    doc = datacite_v31.serialize(doi_pid, record)
+                    doc = datacite_v44.serialize(doi_pid, record)
                     url = make_record_url(pid.pid_value)
                     datacite_provider.update(url, doc)
-                except e:
+                except:
                     current_app.logger.error("Error in DataCite metadata update", exc_info=True)
         return self.make_response(
             pid, record, links_factory=self.links_factory)

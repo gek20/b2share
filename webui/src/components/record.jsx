@@ -392,7 +392,7 @@ const Record = React.createClass({
                     Copy BibTeX <BibtexExport doi={doi}/>
             </b>
             </div>
-            <a href="https://citation.crosscite.org/">More citation choices</a>
+            <a href={"https://citation.crosscite.org?doi=" + doi}>More citation choices</a>
             </div>
         )
 
@@ -610,7 +610,7 @@ const Record = React.createClass({
             serverCache.createRecordVersion(record, newRecordID => browser.gotoEditRecord(newRecordID));
         }
         const state = record.get('metadata').get('publication_state');
-        const doi = record.get('metadata').get('DOI')
+        const doi = "http://doi.org/10.23728/fmi-b2share.84832a794ea5442896acd5567944fb3b"//record.get('metadata').get('DOI')
         const showB2Note = serverCache.getInfo().get('show_b2note');
         return (
             <div className="container-fluid">
@@ -668,7 +668,7 @@ const Record = React.createClass({
                     </div>
                     <div className="row">
                         <div className="col-lg-6">
-                            { this.renderCitations(doi) }
+                            {doi && this.renderCitations(doi)}
                             { this.renderFileList(files, this.props.b2noteUrl, true) }
                         </div>
 

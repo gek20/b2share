@@ -845,7 +845,7 @@ export const CitationBox = React.createClass({
     },
     componentDidMount() {
         const headers= {"Accept":"text/x-bibliography; style=apa"};
-        const url = this.props.doi
+        const url = this.props.doi.replace('http', 'https')
         fetch(url, {headers}).then(response=>response.text()).then(text=>this.setState({data: text.replace(/<\/?i>/g, "")}));
     },
     render: function() {
@@ -858,7 +858,7 @@ export const CitationBox = React.createClass({
 export const BibtexExport = React.createClass({
     onButtonClick() {
         const headers= {"Accept":"application/x-bibtex"};
-        const url = this.props.doi
+        const url = this.props.doi.replace('http', 'https')
         fetch(url, {headers}).then(response=>response.text()).then(text=>copyToClipboard(text));
     },
     render: function() {

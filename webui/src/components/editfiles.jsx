@@ -7,6 +7,7 @@ import { serverCache, Error } from '../data/server';
 import { pairs, humanSize } from '../data/misc';
 import { Wait, Err } from './waiting.jsx';
 import { ReplaceAnimate } from './animate.jsx';
+import { ExternalUrls } from './externalurls.jsx';
 
 const PT = React.PropTypes;
 
@@ -411,6 +412,7 @@ export const EditFiles = React.createClass({
         record: PT.object.isRequired,
         setState: PT.func.isRequired,
         setModal: PT.func.isRequired,
+        setRecord: PT.func.isRequired
     },
 
     getInitialState: function() {
@@ -546,8 +548,8 @@ export const EditFiles = React.createClass({
         const b2dropZone = <B2DropZone close={e => this.props.setModal(false)}
                                        onFiles={fs => this.handleAdd(fs, 'b2drop')} />;
         return (
-            <div>
-                <div className="row" style={{borderBottom:'1px solid #ddd'}}>
+            <div style={{borderBottom:'1px solid #ddd'}}>
+                <div className="row">
                     <h3 className="col-md-3">
                         Add files
                     </h3>
@@ -560,12 +562,12 @@ export const EditFiles = React.createClass({
                             <h3>Add B2DROP files</h3>
                         </button>
                     </div>
-
                     { !this.state.files.length ? false :
                         <div className="col-md-offset-3 col-md-9">
                             { this.renderUploadQueue() }
                         </div>
                     }
+
                 </div>
 
                 { !this.props.files.length ? false :
@@ -578,6 +580,10 @@ export const EditFiles = React.createClass({
                         </div>
                     </div>
                 }
+                <ExternalUrls
+                    communitySchemaId={this.props.blockSchemas[0][0]}
+                    setRecord={(r) => this.props.setRecord(r)}
+                    record={this.props.record} />
             </div>
         );
     },

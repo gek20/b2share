@@ -209,6 +209,15 @@ const EditRecordFieldTree = React.createClass({
                             </button>
                         </span>
         }
+        return (
+            <EditFiles files={files ? files.toJS() : []}
+                record={this.state.record}
+                setState={setState}
+                setModal={modal => this.setState({modal})}
+                setRecord={(r) => this.setState({record: r, dirty: true})}
+                blockSchemas={this.props.blockSchemas}
+            />
+        );
     },
 
     renderButtonedScalarField(schema, path, buttons) {
@@ -489,6 +498,9 @@ const EditRecordFieldTree = React.createClass({
         const title = schema.get('title');
         const spath = path.slice((path.indexOf(this.props.schemaID) || -1) + 1)
         const subheading = schema.get('subheading');
+        if (path.includes('external_url')) {
+            return null
+        }
         return (
             <div className="row" key={id}>
                 { subheading &&

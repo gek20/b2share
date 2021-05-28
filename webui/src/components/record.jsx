@@ -15,6 +15,7 @@ import { Versions } from './versions.jsx';
 import { getSchemaOrderedMajorAndMinorFields } from './schema.jsx';
 import PiwikTracker from 'piwik-react-router';
 import { Card } from 'react-bootstrap';
+import { ExternalUrlsRec } from './externalurls.jsx';
 const PT = React.PropTypes;
 
 
@@ -670,6 +671,9 @@ const Record = React.createClass({
                         <div className="col-lg-6">
                             {doi && this.renderCitations(doi)}
                             { this.renderFileList(files, this.props.b2noteUrl, true) }
+                            { blockSchemas &&
+                                <ExternalUrlsRec urls={this.props.record.getIn(['metadata', 'community_specific', blockSchemas[0][0], 'external_url'])} />
+                            }
                         </div>
 
                         <div className="col-lg-6">
@@ -677,7 +681,7 @@ const Record = React.createClass({
 
                             { !blockSchemas ? false :
                                 blockSchemas.map(([id, blockSchema]) =>
-                                    this.renderFieldBlock(id, (blockSchema||Map()).get('json_schema'), [])) }
+                                    this.renderFieldBlock(id, (blockSchema||Map()).get('json_schema'), {'external_url': true})) }
                         </div>
                     </div>
 

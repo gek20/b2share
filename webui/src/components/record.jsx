@@ -375,10 +375,10 @@ const Record = React.createClass({
         );
     },
 
-    fixedFields: {
-        'community': true, 'titles': true, 'descriptions': true,
-        'creators': true, 'keywords': true, 'disciplines': true, 'publication_state': true,
-    },
+    fixedFields: [
+        'community', 'titles', 'descriptions',
+        'creators', 'keywords', 'disciplines', 'publication_state',
+    ],
     renderCitations(doi) {
         return (
             <div className="well">
@@ -548,6 +548,7 @@ const Record = React.createClass({
         const metadata = !schemaID ? metadata_block : metadata_block.getIn(['community_specific', schemaID]);
 
         function renderBigField(excludeFields, [pid, pschema], i) {
+            console.log(excludeFields)
             if (excludeFields.includes(pid)) {
                 return false;
             }
@@ -681,7 +682,7 @@ const Record = React.createClass({
 
                             { !blockSchemas ? false :
                                 blockSchemas.map(([id, blockSchema]) =>
-                                    this.renderFieldBlock(id, (blockSchema||Map()).get('json_schema'), {'external_url': true})) }
+                                    this.renderFieldBlock(id, (blockSchema||Map()).get('json_schema'), ['external_url'])) }
                         </div>
                     </div>
 

@@ -193,7 +193,7 @@
             "$schema": { "type": "string" },
             "creators": {
                 "title": "Creators",
-                "description": "The full name of the creators. The personal name format should be: family, given (e.g.: Smith, John).",
+                "description": "The full name of the creators. The personal name format should be: family, given (e.g.: Smith, John). These are used in the citation author list.",
                 "type": "array",
                 "items": {
                     "type": "object",
@@ -337,7 +337,7 @@
             },
             "contributors": {
                 "title": "Contributors",
-                "description": "The list of all other contributors. Please mention all persons that were relevant in the creation of the resource.",
+                "description": "The list of all other contributors. Please mention all persons that were relevant in the creation of the resource. These are not used in the citation author list.",
                 "type": "array",
                 "items": {
                     "type": "object",
@@ -635,6 +635,7 @@
                         },
                         "funder_identifier": {
                             "type": "string",
+                            "title": "Funder identifier",
                             "description": "The unique identifier of the funder."
                         },
                         "funder_identifier_type": {
@@ -698,7 +699,7 @@
                 "type": "array"
             }
         },
-        "required": ["community", "titles", "open_access", "publication_state", "community_specific"],
+        "required": ["community", "titles", "open_access", "publication_state", "community_specific", "descriptions", "creators", "keywords"],
         "additionalProperties": false,
         "b2share": {
             "presentation": {

@@ -149,11 +149,11 @@ const EditRecordFieldTree = React.createClass({
         if (nextState.dirty) {
             this.state.dirty = false;
         }
-        return nextState.dirty;
+        return nextState.dirty || nextProps.dirty;
     },
 
-    setValue(schema, path, value) {
-        this.props.funcs.setValue(schema, path, value);
+    setValue(schema, path, value, callback) {
+        this.props.funcs.setValue(schema, path, value, callback);
         this.setState({dirty: true});
     },
 
@@ -209,15 +209,6 @@ const EditRecordFieldTree = React.createClass({
                             </button>
                         </span>
         }
-        return (
-            <EditFiles files={files ? files.toJS() : []}
-                record={this.state.record}
-                setState={setState}
-                setModal={modal => this.setState({modal})}
-                setRecord={(r) => this.setState({record: r, dirty: true})}
-                blockSchemas={this.props.blockSchemas}
-            />
-        );
     },
 
     renderButtonedScalarField(schema, path, buttons) {
@@ -236,17 +227,18 @@ const EditRecordFieldTree = React.createClass({
     },
 
     renderScalarField(schema, path, buttons={}, options={}) {
-        const onDateChange = (date) => {
+        const onDateChange = (date, callback) => {
             const m = moment(date);
-            this.setValue(schema, path, m.isValid() ? m.toISOString() : undefined);
+            this.setValue(schema, path, m.isValid() ? m.toISOString() : undefined, callback);
         }
 
         const onEmbargoDateChange = date => {
             const m = moment(date);
             // true if embargo is in the past
             const access = m.isValid() ? (moment().diff(m) > 0) : true;
-            this.setValue(null, ['open_access'], access);
-            onDateChange(m)
+            this.setValue(null, ['open_access'], access,
+                () => this.setValue(null, ['publication_date'], m.isValid() ? m.toISOString() : undefined,
+                    () => onDateChange(m, () => this.props.forceReRender())));
         };
 
         const onVocabularySelect = (value, type) => {
@@ -372,8 +364,15 @@ const EditRecordFieldTree = React.createClass({
                 return <DropdownList className={validClass} value={value_str} data={schema.get('enum').toJS()} onChange={setter} />
             } else if (['date-time', 'date'].includes(format)) {
                 const initial = (value_str && value_str !== "") ? moment(value_str).toDate() : null;
-                return <DateTimePicker className={validClass} time={format == 'date-time'} value={initial}
-                        format={"YYYY/MM/DD" + (format == 'date-time' ? " HH:mm" : "")} onChange={path == 'embargo_date' ? onEmbargoDateChange : onDateChange} />
+                return (
+                    <DateTimePicker
+                        className={validClass}
+                        time={format == 'date-time'}
+                        value={initial}
+                        format={"YYYY/MM/DD" + (format == 'date-time' ? " HH:mm" : "")}
+                        onChange={path == 'embargo_date' ? onEmbargoDateChange : onDateChange}
+                    />
+                )
             } else if (format === 'email') {
                 return <input type="text" className={"form-control"+ validClass} placeholder="email@example.com"
                         value={value_str} onChange={event => setter(event.target.value)} />
@@ -385,7 +384,7 @@ const EditRecordFieldTree = React.createClass({
                         value={value_str} onChange={event => setter(event.target.value)} />
             }
         } else {
-            console.error("Cannot render field of schema:", schema.toJS());
+            console.error("Cannot render field of schema:", schema.toJS(), path);
         }
     },
 
@@ -599,7 +598,7 @@ const EditRecordBlock = React.createClass({
 
         const [majors, minors] = getSchemaOrderedMajorAndMinorFields(schema, hiddenFields.concat(['dates', 'sizes', 'formats']));
 
-        const majorFields = majors.entrySeq().map(([id, schema]) => <EditRecordFieldTree key={id} id={id} schemaID={schemaID} schema={schema} setLicenseModal={this.props.setModal } funcs={this.props.funcs} />);
+        const majorFields = majors.entrySeq().map(([id, schema]) => <EditRecordFieldTree dirty={this.props.dirty && (id == 'publication_date' || id == 'open_access')} forceReRender={this.props.forceReRender} key={id} id={id} schemaID={schemaID} schema={schema} setLicenseModal={this.props.setModal } funcs={this.props.funcs} />);
         const minorFields = minors.entrySeq().map(([id, schema]) => <EditRecordFieldTree key={id} id={id} schemaID={schemaID} schema={schema} funcs={this.props.funcs} />);
 
         const onMoreDetails = e => {
@@ -613,8 +612,8 @@ const EditRecordBlock = React.createClass({
                     <div className="col-sm-offset-3 col-sm-9" style={{marginTop:'1em', marginBottom:'1em'}}>
                         <a href="#" onClick={onMoreDetails} style={{padding:'0.5em'}}>
                             { this.state.folds ?
-                                <span>Show more details <span className="glyphicon glyphicon-chevron-right" style={{top:'0.1em'}} aria-hidden="true"/></span>:
-                                <span>Hide details <span className="glyphicon glyphicon-chevron-down" style={{top:'0.2em'}} aria-hidden="true"/></span> }
+                                <span style={{fontSize: 'large'}}>Show more details <span className="glyphicon glyphicon-chevron-right" style={{top:'0.1em'}} aria-hidden="true"/></span>:
+                                <span style={{fontSize: 'large'}}>Hide details <span className="glyphicon glyphicon-chevron-down" style={{top:'0.2em'}} aria-hidden="true"/></span> }
                         </a>
                     </div>
                 </div>
@@ -652,12 +651,19 @@ const EditRecordBlock = React.createClass({
 const EditRecord = React.createClass({
     getInitialState() {
         return {
+            rerender: false,
             fileState: 'done',
             errors: {},
             dirty: false,
             waitingForServer: false,
             modal: false
         };
+    },
+
+    componentDidUpdate() {
+        if (this.state.rerender) {
+            this.setState({rerender: false})
+        }
     },
 
     renderFileBlock() {
@@ -680,7 +686,9 @@ const EditRecord = React.createClass({
             <EditFiles files={files ? files.toJS() : []}
                 record={this.props.record}
                 setState={setState}
-                setModal={modal => this.setState({modal})} />
+                setModal={modal => this.setState({modal})}
+                blockSchemas={this.props.blockSchemas}
+                setRecord={(r) => this.setState({record: r, dirty: true})}/>
         );
     },
 
@@ -706,7 +714,7 @@ const EditRecord = React.createClass({
         return v;
     },
 
-    setValue(schema, path, value) {
+    setValue(schema, path, value, callback) {
         let r = this.state.record;
         if (!r) {
             return null;
@@ -737,7 +745,6 @@ const EditRecord = React.createClass({
             if (typeof value === 'string' || value instanceof String) {
                 value = value.replace(/^\s+/, '').replace(/(\s{2})\s+$/, '$1') ;
             }
-
             r = r.setIn(path, value);
             self.validateField(schema, path, value);
         } else {
@@ -749,7 +756,8 @@ const EditRecord = React.createClass({
             }
             this.validateField(schema, path, value);
         }
-        this.setState({record: r, dirty: true})
+        const {embargo_date, publication_date, open_access} = r.toJS()
+        this.setState({record: r, dirty: true}, callback)
     },
 
     removeErrors(path) {
@@ -1050,7 +1058,7 @@ const EditRecord = React.createClass({
                     </div>
                     <div className="col-xs-12">
                         <form className="form-horizontal" onSubmit={this.updateRecord}>
-                            <EditRecordBlock key={"root"} schemaID={null} schema={rootSchema} funcs={this.getChildFuncs()} setModal={s => { this.setState(s)}} />
+                            <EditRecordBlock key={"root"} dirty={this.state.rerender} forceReRender={() => {this.setState({rerender: true})}} schemaID={null} schema={rootSchema} funcs={this.getChildFuncs()} setModal={s => { this.setState(s)}} />
                             { blockSchemas.map(([id, schema]) =>
                                 <EditRecordBlock setModal={s => this.setState(s)} key={id} schemaID={id} schema={(schema||Map()).get('json_schema')} funcs={this.getChildFuncs()} />) }
                         </form>

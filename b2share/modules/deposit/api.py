@@ -72,7 +72,7 @@ from b2share.modules.deposit.fetchers import b2share_deposit_uuid_fetcher
 from b2share.modules.deposit.providers import DepositUUIDProvider
 from b2share.modules.handle.proxies import current_handle
 from b2share.modules.handle.errors import EpicPIDError
-
+from datetime import date
 
 class PublicationStates(Enum):
     """States of a record."""
@@ -267,6 +267,26 @@ class Deposit(InvenioDeposit):
                         community_metadata[key] = False
                 data['community_specific'] = {bs_id: community_metadata}
 
+        # FMI default values
+
+        data['license'] = {'license': 'CC-BY', 'license_uri': 'http://creativecommons.org/licenses/by/4.0/'}
+        data['disciplines'] = [{
+            'discipline_name': '3.3.2 → Earth sciences → Environmental science',
+            'discipline_identifier': '3.3.2 → Earth sciences → Environmental science',
+            'classification_code': '3.3.2',
+            'scheme': 'b2share.legacy',
+            'scheme_uri': 'http://b2share.eudat.eu/suggest/disciplines.json'
+        }]
+        data['publisher'] = 'Finnish Meteorological Institute'
+        data['languages'] = [{
+            'language_name': 'English',
+            'language_identifier': 'eng',
+            'scheme': 'ISO-639-3',
+            'scheme_uri': 'https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry'
+        }]
+        data['resource_types'] = [{'resource_type_general': 'Dataset'}]
+        data['publication_date'] = date.today().isoformat()
+
         # create file bucket
         if prev_version and prev_version.files:
             # Clone the bucket from the previous version. This doesn't
@@ -287,7 +307,6 @@ class Deposit(InvenioDeposit):
         db.session.add(RecordsBuckets(
             record_id=deposit.id, bucket_id=bucket.id
         ))
-
         return deposit
 
     def _prepare_edit(self, record):

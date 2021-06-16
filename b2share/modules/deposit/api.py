@@ -286,7 +286,7 @@ class Deposit(InvenioDeposit):
         }]
         data['resource_types'] = [{'resource_type_general': 'Dataset'}]
         data['publication_date'] = date.today().isoformat()
-
+        data['creators']  = [{'affiliations': [{'affiliation_name': 'Finnish Meteorological Institute'}]}]
         # create file bucket
         if prev_version and prev_version.files:
             # Clone the bucket from the previous version. This doesn't

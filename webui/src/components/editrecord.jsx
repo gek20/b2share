@@ -444,7 +444,7 @@ const EditRecordFieldTree = React.createClass({
                 if (pos === 0) {
                     const itemType = itemSchema.get('type');
                     const values = this.props.funcs.getValue(path) || [];
-                    const newItem = itemType === 'array' ? [] : itemType === 'object' ? {} : null;
+                    const newItem = itemType === 'array' ? [] : itemType === 'object' ? (id === 'creators' ? {affiliations: [{'affiliation_name': 'Finnish Meteorological Institute'}]} : {}) : null;
                     values.push(newItem);
                     if (values.length == 1) {
                         // added value starting from an empty container; 2 values needed

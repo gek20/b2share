@@ -32,7 +32,7 @@ export const RecordRoute = React.createClass({
     render() {
         const record = this.getRecordOrDraft();
         const b2noteUrl = serverCache.getInfo().get('b2note_url', '');
-        if (!record || b2noteUrl === null) {
+        if (!record) {
             return <Wait/>;
         }
         if (record instanceof Error) {

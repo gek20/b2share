@@ -1,0 +1,95 @@
+#TODO artifactory url
+image: eudat-docker.artifactory.ci.csc.fi/docker/compose:alpine-1.28.5
+
+variables:
+  ARTIFACTORY_URL: https://eudat-docker.artifactory.ci.csc.fi/artifactory
+  ARTIFACTORY_NPM_REPO: https://artifactory.ci.csc.fi/artifactory/api/npm/eudat-npm/
+  ARTIFACTORY_PIP_REPO: artifactory.ci.csc.fi/artifactory/api/pypi/eudat-pypi-remote/simple
+  ARTIFACTORY_DOCKER_REPO: eudat-docker.artifactory.ci.csc.fi
+
+stages:
+  - build
+  - container
+  # - trigger
+
+# TODO env variable DOCKER_CONFIG to gitlab
+before_script:
+  - apk add --no-cache -q openssh bash git curl jq
+  - git config --global advice.detachedHead false
+  # Re-enable jfrog, after properly configured at artifactory side
+  # - curl -sfL https://getcli.jfrog.io | sh
+  # - mv jfrog /usr/local/bin/.
+  # - jfrog config add af-server --artifactory-url=${ARTIFACTORY_URL} --user=${ARTIFACTORY_USER} --password=${ARTIFACTORY_PASSWORD}
+  # - jfrog config show
+  # Following line replaced with docker login
+  # - mkdir -p ~/.docker && cp ${DOCKER_CONFIG_EUDAT_AND_FMI} ~/.docker/config.json
+  - docker login -u ${ARTIFACTORY_USER} -p ${ARTIFACTORY_PASSWORD} ${ARTIFACTORY_DOCKER_REPO}
+
+after_script:
+  - docker image ls
+  - IMGS_TO_REMOVE=$(docker image ls --filter dangling=true -q)
+  - set -exu
+  - '[[ -z ${IMGS_TO_REMOVE} ]] || docker image rm -f ${IMGS_TO_REMOVE}'
+  - docker logout ${ARTIFACTORY_DOCKER_REPO}
+
+# Correct
+.job-build-ui: &build_ui
+  stage: build
+  before_script: []
+  after_script: []
+  image: eudat-docker.artifactory.ci.csc.fi/builder-cos7
+  script:
+    - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
+    # Build webui
+    - cd webui && npm install --unsafe-perm
+    - ./node_modules/webpack/bin/webpack.js -p
+    - cd ..
+  artifacts:
+    paths:
+      - webui
+    expire_in: 1 hour
+
+
+.job-container: &make_container
+  stage: container
+  variables:
+    GIT_STRATEGY: clone
+    REMOTE_REPOSITORY: https://gitlab.ci.csc.fi/eudat/b2share/b2share-github.git
+    DEFAULT_REMOTE_BRANCH: jl-cicd
+    DEFAULT_IMAGE: b2share
+    DEFAULT_TAG: 2.1.7
+    DEPLOY_ENV: development
+
+  # CI_variables from gitlab
+  script:
+    - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
+    # Take into account variables coming from upstream, if any
+    - export IMAGE_BASE=${IMAGE:-${DEFAULT_IMAGE}}
+    - export TAG=${TAG:-${DEFAULT_TAG}}
+    # Copy certificate files
+    #TODO check dis
+    - echo "${T12996_USER01_325_certificate_only}" > usr/var/b2share-instance/21.T12996_USER01_325_certificate_only.pem
+    - echo "${T12996_USER01_325_privkey}" > usr/var/b2share-instance/21.T12996_USER01_325_privkey.pem
+    # Returns IMAGE_SHA (in file 'build_var')
+    - ./ci-scripts/build-container.sh
+    - '[[ -f ./build_var ]] && export IMAGE_SHA=$(cat ./build_var) || echo -e "\nNO SHA variable available\n"'
+    - |
+      echo -e "\nTriggering deployment pipeline\n"
+      set -exu
+      curl -X POST \
+        -F "ref=${DEFAULT_REMOTE_BRANCH}" \
+        -F "token=${CI_JOB_TOKEN}" \
+        -F "variables[TRIGGERED]=true" \
+        -F "variables[TAG]=${TAG}" \
+        -F "variables[DEPLOY_ENV]=${DEPLOY_ENV}" \
+        -F "variables[IMAGE_BASE]=${IMAGE_BASE}" \
+        -F "variables[IMAGE_SHA]=${IMAGE_SHA}" \
+        https://gitlab.ci.csc.fi/api/v4/projects/300/trigger/pipeline | jq .
+
+build-ui:
+  when: always
+  <<: *build_ui
+
+build-container:
+  when: on_success
+  <<: *make_container

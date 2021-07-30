@@ -9,7 +9,7 @@ IMAGE=${ARTIFACTORY_DOCKER_REPO}/${IMAGE_BASE}:${TAG}
 JF_BUILD_NAME=fmi-${CI_PROJECT_NAME}-local
 JF_BUILD_NUMBER=${CI_JOB_ID}
 
-# Build the image
+# Build the image 
 # docker build \
 #   --rm \
 #   --no-cache \

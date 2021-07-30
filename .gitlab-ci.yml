@@ -68,8 +68,9 @@ after_script:
     - export TAG=${TAG:-${DEFAULT_TAG}}
     # Copy certificate files
     #TODO check dis
-    - echo "${T12996_USER01_325_certificate_only}" > usr/var/b2share-instance/21.T12996_USER01_325_certificate_only.pem
-    - echo "${T12996_USER01_325_privkey}" > usr/var/b2share-instance/21.T12996_USER01_325_privkey.pem
+    # Probably not needed
+    # - echo "${T12996_USER01_325_certificate_only}" > usr/var/b2share-instance/21.T12996_USER01_325_certificate_only.pem
+    # - echo "${T12996_USER01_325_privkey}" > usr/var/b2share-instance/21.T12996_USER01_325_privkey.pem
     # Returns IMAGE_SHA (in file 'build_var')
     - ./ci-scripts/build-container.sh
     - '[[ -f ./build_var ]] && export IMAGE_SHA=$(cat ./build_var) || echo -e "\nNO SHA variable available\n"'

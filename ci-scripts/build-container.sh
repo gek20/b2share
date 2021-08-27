@@ -26,7 +26,7 @@ docker build \
   --rm --no-cache \
   -t ${IMAGE} \
   -t ${IMAGE_BASE} \
-  -f ./ci-docker/Dockerfile .
+  -f ./dockerize/Dockerfile .
 
 ####  Needs troubleshooting!               ####
 ####  Most likely artifactory side problem ####

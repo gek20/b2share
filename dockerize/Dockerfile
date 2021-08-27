@@ -102,6 +102,11 @@ COPY dockerize/supervisord.conf /etc/
 
 WORKDIR /eudat/b2share
 ADD webui webui
+
+#
+# BUILD UI
+#
+
 WORKDIR /eudat/b2share/webui
 RUN node_modules/webpack/bin/webpack.js -p
 

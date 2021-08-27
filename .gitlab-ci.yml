@@ -57,7 +57,7 @@ after_script:
     REMOTE_REPOSITORY: https://gitlab.ci.csc.fi/eudat/b2share/b2share-github.git
     DEFAULT_REMOTE_BRANCH: jl-cicd
     DEFAULT_IMAGE: b2share
-    DEFAULT_TAG: 2.1.7
+    DEFAULT_TAG: 2.2.0
     DEPLOY_ENV: development
 
   # CI_variables from gitlab

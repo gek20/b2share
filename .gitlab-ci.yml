@@ -71,6 +71,8 @@ stages:
     GIT_STRATEGY: clone
     REMOTE_REPOSITORY: https://gitlab.ci.csc.fi/eudat/b2share/b2share-github.git
     DEFAULT_REMOTE_BRANCH: jl-cicd
+    DEFAULT_IMAGE: b2share-fmi-dev
+    DEFAULT_TAG: 2.2.0
     DEPLOY_ENV: development
   secrets: !reference [.suss, secrets]
   script:
@@ -107,14 +109,14 @@ stages:
         -F "variables[IMAGE_SHA]=${IMAGE_SHA}" \
         ${CI_API_V4_URL}/projects/300/trigger/pipeline | jq .
 
-build-ui:
-  when: always
-  <<: *build_ui
+# build-ui:
+#   when: always
+#   <<: *build_ui
 
 createwheels:
   when: always
   <<: *create_wheels
 
 build-container:
-  when: on_success
+  when: always
   <<: *make_container

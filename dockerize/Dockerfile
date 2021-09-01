@@ -100,6 +100,9 @@ COPY dockerize/supervisord.conf /etc/
 # Copy the rest of B2Share files
 #
 
+WORKDIR /eudat
+ADD . b2share
+
 WORKDIR /eudat/b2share
 ADD webui webui
 
@@ -109,9 +112,7 @@ ADD webui webui
 
 WORKDIR /eudat/b2share/webui
 RUN node_modules/webpack/bin/webpack.js -p
-
-WORKDIR /eudat
-ADD . b2share
+RUN npm install --unsafe-perm
 
 WORKDIR /eudat/b2share
 

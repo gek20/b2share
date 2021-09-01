@@ -41,3 +41,4 @@ docker push ${IMAGE}
 
 # SHA Digest available only after pushing to the repository
 echo "$(docker images --digests | grep ${ARTIFACTORY_DOCKER_REPO}/${IMAGE_BASE} | grep ${TAG} | awk '{print $3}')" > build_var
+cat build_var

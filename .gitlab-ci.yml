@@ -33,21 +33,21 @@ after_script:
   - docker logout ${ARTIFACTORY_DOCKER_REPO}
 
 # Correct
-.job-build-ui: &build_ui
-  stage: build
-  before_script: []
-  after_script: []
-  image: eudat-docker.artifactory.ci.csc.fi/builder-cos7
-  script:
-    - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
-    # Build webui
-    - cd webui && npm install --unsafe-perm
-    - ./node_modules/webpack/bin/webpack.js -p
-    - cd ..
-  artifacts:
-    paths:
-      - webui
-    expire_in: 1 hour
+# .job-build-ui: &build_ui
+#   stage: build
+#   before_script: []
+#   after_script: []
+#   image: eudat-docker.artifactory.ci.csc.fi/builder-cos7
+#   script:
+#     - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
+#     # Build webui
+#     - cd webui && npm install --unsafe-perm
+#     - ./node_modules/webpack/bin/webpack.js -p
+#     - cd ..
+#   artifacts:
+#     paths:
+#       - webui
+#     expire_in: 1 hour
 
 
 .job-container: &make_container
@@ -56,7 +56,7 @@ after_script:
     GIT_STRATEGY: clone
     REMOTE_REPOSITORY: https://gitlab.ci.csc.fi/eudat/b2share/b2share-github.git
     DEFAULT_REMOTE_BRANCH: jl-cicd
-    DEFAULT_IMAGE: b2share
+    DEFAULT_IMAGE: b2share-fmi-dev
     DEFAULT_TAG: 2.2.0
     DEPLOY_ENV: development
 
@@ -87,10 +87,10 @@ after_script:
         -F "variables[IMAGE_SHA]=${IMAGE_SHA}" \
         https://gitlab.ci.csc.fi/api/v4/projects/300/trigger/pipeline | jq .
 
-build-ui:
-  when: always
-  <<: *build_ui
+# build-ui:
+#   when: always
+#   <<: *build_ui
 
 build-container:
-  when: on_success
+  when: always
   <<: *make_container

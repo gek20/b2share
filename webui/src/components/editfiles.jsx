@@ -583,7 +583,7 @@ export const EditFiles = React.createClass({
                 <ExternalUrls
                     communitySchemaId={this.props.blockSchemas[0][0]}
                     setRecord={(r) => this.props.setRecord(r)}
-                    record={this.props.record} />
+                    record={this.props.record.get('metadata')} />
             </div>
         );
     },

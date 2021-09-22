@@ -1,5 +1,5 @@
 #!/bin/sh
-set -u
+set -ue
 
 IMAGE=${ARTIFACTORY_DOCKER_REPO}/${IMAGE_BASE}:${TAG}
 
@@ -21,9 +21,10 @@ JF_BUILD_NUMBER=${CI_JOB_ID}
 #   -t ${IMAGE} \
 #   -t ${IMAGE_BASE} \
 #   -f ./dockerfiles/Dockerfile.bk .
-
+docker pull ${IMAGE}
 docker build \
-  --rm --no-cache \
+  --rm \
+  --cache-from ${IMAGE} \
   -t ${IMAGE} \
   -t ${IMAGE_BASE} \
   -f ./dockerize/Dockerfile .

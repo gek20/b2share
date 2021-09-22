@@ -1,29 +1,30 @@
-FROM centos:7
+# Use builder image. It has some preinstalled dependencies
+FROM eudat-docker.artifactory.ci.csc.fi/builder-cos7
 
-LABEL maintainer Petri Laihonen <petri.laihonen@csc.fi>
+# LABEL maintainer Petri Laihonen <petri.laihonen@csc.fi>
+LABEL maintainer Johannes Lares <johannes.lares@csc.fi>
 
 EXPOSE 5000
 
+# # Supposedly helps with pip time-outs.
+# ENV PIP_DEFAULT_TIMEOUT=100
+
 RUN \
-    # yum -y update && \
-    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    yum -y update && \
+    # yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     yum -y install wget gcc-c++ make openssl-devel \
                    postgresql-devel mysql-devel supervisor \
                    git libffi-devel python-devel libxml2-devel libxml2 \
-                   libxslt-devel zlib-devel libxslt http-parser npm
-
-RUN yum -y install python36 python36-pip python36-devel uwsgi-plugin-python36 uwsgi
-
-# install locale
-RUN localedef -c -f UTF-8 -i en_US en_US.UTF-8
-
-# Supposedly helps with pip time-outs.
-ENV PIP_DEFAULT_TIMEOUT=100
-
-# setuptools pinned for 2to3 compatibility (for e.g. fs==0.5.4)
-RUN python3 -m pip install --upgrade pip setuptools==57.5.0 wheel && \
-     python3 --version && \
-     pip3 --version
+                   libxslt-devel zlib-devel libxslt http-parser && \
+    yum -y install python36 python36-pip python36-devel uwsgi-plugin-python36 uwsgi && \
+    curl -sL https://rpm.nodesource.com/setup_14.x | bash - && \
+    yum install -y nodejs && \
+    yum clean all && \
+    # define locale
+    localedef -c -f UTF-8 -i en_US en_US.UTF-8 && \
+    python3 -m pip install --upgrade pip setuptools==57.5.0 wheel && \
+    python3 --version && \
+    pip3 --version
 
 ENV LANG=en_US.UTF-8
 ENV DB_NAME="b2share-evolution"
@@ -40,35 +41,47 @@ ENV B2SHARE_WEBUI_MATOMO_SITEID=''
 #
 
 WORKDIR /eudat
-RUN git clone https://github.com/EUDAT-B2SHARE/public-license-selector.git
-WORKDIR /eudat/public-license-selector
-RUN npm install
+RUN git clone https://github.com/EUDAT-B2SHARE/public-license-selector.git && \
+    cd public-license-selector && \
+    npm install && \
+    node --version && npm --version && \
+    mv webpack.config.js webpack.config.js.0 && \
+    echo "require('es6-promise').polyfill();" > webpack.config.js && \
+    cat webpack.config.js.0 >> webpack.config.js && \
+    npm install es6-promise && \
+    npm run build && \
+    node_modules/webpack/bin/webpack.js -p  && \
+    mkdir -p /eudat/b2share/webui/app/vendors && \
+    cp dist/license-selector.* /eudat/b2share/webui/app/vendors/
 
-# this next RUN is just a workaround for the old version of node on centos7
-# without it, the npm run build fails when compiling less files
-RUN node --version && \
-    npm --version
-RUN mv webpack.config.js webpack.config.js.0
-RUN echo "require('es6-promise').polyfill();" > webpack.config.js
-RUN cat webpack.config.js.0 >> webpack.config.js
-RUN npm install es6-promise
 
-RUN npm run build
+# # this next RUN is just a workaround for the old version of node on centos7
+# # without it, the npm run build fails when compiling less files
+# # MOVED TO upper RUN command
+# RUN node --version && \
+#     npm --version
+# RUN mv webpack.config.js webpack.config.js.0
+# RUN echo "require('es6-promise').polyfill();" > webpack.config.js
+# RUN cat webpack.config.js.0 >> webpack.config.js
+# RUN npm install es6-promise
 
-RUN node_modules/webpack/bin/webpack.js -p
-RUN mkdir -p /eudat/b2share/webui/app/vendors
-RUN cp dist/license-selector.* /eudat/b2share/webui/app/vendors/
+# RUN npm run build
+
+# RUN node_modules/webpack/bin/webpack.js -p
+# RUN mkdir -p /eudat/b2share/webui/app/vendors
+# RUN cp dist/license-selector.* /eudat/b2share/webui/app/vendors/
 
 #
 # Install B2Share webui module and dependencies
+# NO NEED TO BUILD UI AT THIS STAGE, BUILDED AT GITLAB CI PREVIOUS JOB
 #
 
 WORKDIR /eudat
 ADD ./webui/package.json b2share/webui/package.json
 ADD ./webui/copy_files.sh b2share/webui/copy_files.sh
 
-WORKDIR /eudat/b2share/webui
-RUN npm install --unsafe-perm
+# WORKDIR /eudat/b2share/webui
+# RUN npm install --unsafe-perm
 
 #
 # UWSGI Config
@@ -86,12 +99,16 @@ ADD setup.py setup.py
 ADD b2share/version.py b2share/version.py
 ADD requirements.txt requirements.txt
 
-RUN pip3 install -r requirements.txt
-RUN pip3 install -e .
+COPY wheels wheels
 
-WORKDIR /eudat/b2share/demo
-ADD demo/setup.py setup.py
-RUN pip3 install -e .
+RUN pip3 install --find-links ./wheels -r requirements.txt && \
+    pip3 install -e .
+
+RUN rm /root/.pip/pip.conf
+
+#nWORKDIR /eudat/b2share/demo
+# ADD demo/setup.py setup.py
+# RUN pip3 install -e .
 
 COPY dockerize/b2share.sh /eudat/
 COPY dockerize/supervisord.conf /etc/
@@ -104,15 +121,15 @@ WORKDIR /eudat
 ADD . b2share
 
 WORKDIR /eudat/b2share
-ADD webui webui
+COPY webui webui
 
 #
-# BUILD UI
+# BUILD UI, NO NEED!!!
 #
 
-WORKDIR /eudat/b2share/webui
-RUN node_modules/webpack/bin/webpack.js -p
-RUN npm install --unsafe-perm
+# WORKDIR /eudat/b2share/webui
+# RUN node_modules/webpack/bin/webpack.js -p
+# RUN npm install --unsafe-perm
 
 WORKDIR /eudat/b2share
 

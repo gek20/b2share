@@ -6,6 +6,12 @@ variables:
   ARTIFACTORY_NPM_REPO: https://artifactory.ci.csc.fi/artifactory/api/npm/eudat-npm/
   ARTIFACTORY_PIP_REPO: artifactory.ci.csc.fi/artifactory/api/pypi/eudat-pypi-remote/simple
   ARTIFACTORY_DOCKER_REPO: eudat-docker.artifactory.ci.csc.fi
+  ARTIFACTORY_PIP_CACHE: artifactory.ci.csc.fi/artifactory/api/pypi/eudat-pypi-remote-cache/simple
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
 
 stages:
   - build
@@ -32,26 +38,41 @@ after_script:
   - '[[ -z ${IMGS_TO_REMOVE} ]] || docker image rm -f ${IMGS_TO_REMOVE}'
   - docker logout ${ARTIFACTORY_DOCKER_REPO}
 
-# Correct
-# .job-build-ui: &build_ui
-#   stage: build
-#   before_script: []
-#   after_script: []
-#   image: eudat-docker.artifactory.ci.csc.fi/builder-cos7
-#   script:
-#     - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
-#     # Build webui
-#     - cd webui && npm install --unsafe-perm
-#     - ./node_modules/webpack/bin/webpack.js -p
-#     - cd ..
-#   artifacts:
-#     paths:
-#       - webui
-#     expire_in: 1 hour
+.job-build-ui: &build_ui
+  stage: build
+  before_script: []
+  after_script: []
+  cache: []
+  image: eudat-docker.artifactory.ci.csc.fi/builder-cos7
+  script:
+    - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
+    # Build webui
+    - cd webui && npm install --unsafe-perm
+    - ./node_modules/webpack/bin/webpack.js -p
+    - cd ..
+  artifacts:
+    paths:
+      - webui
+    expire_in: 1 hour
 
+.job-create-wheels: &create_wheels
+  stage: build
+  before_script: []
+  after_script: []
+  image: eudat-docker.artifactory.ci.csc.fi/builder-cos7
+  script:
+    - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
+    # create wheels for B2SHARE
+    - pip3 install wheel
+    - pip3 wheel --wheel-dir=./wheels --find-links=./wheels -r requirements.txt
+  artifacts:
+    paths:
+      - wheels
+    expire_in: 1 day
 
 .job-container: &make_container
   stage: container
+  cache: []
   variables:
     GIT_STRATEGY: clone
     REMOTE_REPOSITORY: https://gitlab.ci.csc.fi/eudat/b2share/b2share-github.git
@@ -87,10 +108,14 @@ after_script:
         -F "variables[IMAGE_SHA]=${IMAGE_SHA}" \
         https://gitlab.ci.csc.fi/api/v4/projects/300/trigger/pipeline | jq .
 
-# build-ui:
-#   when: always
-#   <<: *build_ui
+build-ui:
+  when: always
+  <<: *build_ui
+
+createwheels:
+  when: always
+  <<: *create_wheels
 
 build-container:
-  when: always
+  when: on_success
   <<: *make_container

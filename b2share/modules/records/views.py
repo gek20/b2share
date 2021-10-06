@@ -620,6 +620,7 @@ class RequestAccessResource(ContentNegotiatedMethodView):
             recipients = [owner.email for owner in owners]
         send_email(dict(
             subject="Request Access to Data Files",
+            reply_to=current_app.config.get('B2SHARE_ACCESS_REQ_MAIL_REPLY_TO', None),
             sender=str(request.json['email']),
             recipients=recipients,
             body=msg_content,

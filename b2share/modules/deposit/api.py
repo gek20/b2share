@@ -269,24 +269,31 @@ class Deposit(InvenioDeposit):
 
         # FMI default values
 
-        data['license'] = {'license': 'CC-BY', 'license_uri': 'http://creativecommons.org/licenses/by/4.0/'}
-        data['disciplines'] = [{
-            'discipline_name': '3.3.2 → Earth sciences → Environmental science',
-            'discipline_identifier': '3.3.2 → Earth sciences → Environmental science',
-            'classification_code': '3.3.2',
-            'scheme': 'b2share.legacy',
-            'scheme_uri': 'http://b2share.eudat.eu/suggest/disciplines.json'
-        }]
-        data['publisher'] = 'Finnish Meteorological Institute'
-        data['languages'] = [{
-            'language_name': 'English',
-            'language_identifier': 'eng',
-            'scheme': 'ISO-639-3',
-            'scheme_uri': 'https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry'
-        }]
-        data['resource_types'] = [{'resource_type_general': 'Dataset'}]
-        data['publication_date'] = date.today().isoformat()
-        data['creators']  = [{'affiliations': [{'affiliation_name': 'Finnish Meteorological Institute'}]}]
+        default_values = {
+            'license': {'license': 'CC-BY', 'license_uri': 'http://creativecommons.org/licenses/by/4.0/'},
+            'disciplines':
+              [{
+              'discipline_name': '3.3.2 → Earth sciences → Environmental science',
+              'discipline_identifier': '3.3.2 → Earth sciences → Environmental science',
+              'classification_code': '3.3.2',
+              'scheme': 'b2share.legacy',
+              'scheme_uri': 'http://b2share.eudat.eu/suggest/disciplines.json'
+            }],
+            'publisher': 'Finnish Meteorological Institute',
+            'languages': [{
+                'language_name': 'English',
+                'language_identifier': 'eng',
+                'scheme': 'ISO-639-3',
+                'scheme_uri': 'https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry'
+            }],
+            'resource_types': [{'resource_type_general': 'Dataset'}],
+            'publication_date': date.today().isoformat(),
+            'creators':[{'affiliations': [{'affiliation_name': 'Finnish Meteorological Institute'}]}]
+        }
+        for key in default_values:
+            if not data.get(key):
+                data[key] = default_values[key]
+
         # create file bucket
         if prev_version and prev_version.files:
             # Clone the bucket from the previous version. This doesn't

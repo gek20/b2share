@@ -119,11 +119,6 @@
                         "title": "Latitude",
                         "description": "The latitude of the point.",
                         "$ref": "#/definitions/latitude"
-                    },
-                    "point_vertical": {
-                        "title": "Vertical",
-                        "description": "The vertical position of the point.",
-                        "type": "number"
                     }
                 },
                 "required": ["point_longitude", "point_latitude"]

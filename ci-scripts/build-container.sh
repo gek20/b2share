@@ -29,7 +29,6 @@ jf config show
 #   -t ${IMAGE} \
 #   -t ${IMAGE_TAGGED} \
 #   -f ./dockerfiles/Dockerfile.bk .
-
 docker build \
   --rm \
   --cache-from ${IMAGE} \

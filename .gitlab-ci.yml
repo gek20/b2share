@@ -57,8 +57,7 @@ stages:
     - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
     # create wheels for B2SHARE
     - pip3 install wheel
-    - pip3 wheel --wheel-dir=./wheels --find-links=$CI_PROJECT_DIR/.cache/pip/wheels/wheels -r requirements.txt
-    - cp ./wheels $CI_PROJECT_DIR/.cache/pip/wheels
+    - pip3 wheel --wheel-dir=./wheels --find-links=./wheels -r requirements.txt
   artifacts:
     paths:
       - wheels
@@ -109,14 +108,14 @@ stages:
         -F "variables[IMAGE_SHA]=${IMAGE_SHA}" \
         ${CI_API_V4_URL}/projects/300/trigger/pipeline | jq .
 
-# build-ui:
-#   when: always
-#   <<: *build_ui
+build-ui:
+  when: always
+  <<: *build_ui
 
 createwheels:
   when: always
   <<: *create_wheels
 
 build-container:
-  when: always
+  when: on_success
   <<: *make_container

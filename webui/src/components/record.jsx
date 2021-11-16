@@ -548,7 +548,6 @@ const Record = React.createClass({
         const metadata = !schemaID ? metadata_block : metadata_block.getIn(['community_specific', schemaID]);
 
         function renderBigField(excludeFields, [pid, pschema], i) {
-            console.log(excludeFields)
             if (excludeFields.includes(pid)) {
                 return false;
             }

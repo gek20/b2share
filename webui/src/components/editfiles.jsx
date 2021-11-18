@@ -854,7 +854,7 @@ export const CitationBox = React.createClass({
         const url = this.props.doi.replace('http', 'https');
         fetch(url, {headers})
             .then(response=>response.text())
-            .then(text=>this.setState({data: text.replace(/<\/?i>/g, ""), error: false}))
+            .then(text=>this.setState({data: text.replace(/<\/?i>/g, "").replace(/&amp;/g, '&'), error: false}))
             .catch(e => this.setState({error: true}));
     },
     componentDidMount() {
@@ -871,9 +871,10 @@ export const CitationBox = React.createClass({
                     </div>
                 </div>
             )
-        else return(
+        else if (this.state.data) return(
             <span>{this.state.data}</span>
         );
+        return null;
     }
 });
 

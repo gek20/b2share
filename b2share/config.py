@@ -213,7 +213,7 @@ CSCAAI_APP_CREDENTIALS = dict(
 
 B2ACCESS_BASE_URL = 'https://b2access.eudat.eu/'
 if os.environ.get("USE_STAGING_B2ACCESS"):
-    B2ACCESS_BASE_URL = 'https://unity.eudat-aai.fz-juelich.de/'
+    B2ACCESS_BASE_URL = 'https://b2access-integration.fz-juelich.de'
 
 CSCAAI_ALLOWED_ORGANIZATIONS = os.environ.get("B2SHARE_ALLOWED_ORGANIZATIONS")
 

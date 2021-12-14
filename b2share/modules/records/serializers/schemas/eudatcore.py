@@ -52,7 +52,6 @@ class EudatCoreSchema(object):
 
     def publishers(self, metadata, root):
         ret = E.publishers()
-        ret.append(E.publisher('EUDAT B2SHARE'))
         if 'publisher' in metadata:
             ret.append(E.publisher(metadata['publisher']))
         root.append(ret)

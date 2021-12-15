@@ -27,6 +27,44 @@ import { renderSmallCommunity } from './common.jsx';
 
 const invalidFieldMessage = field => `Please provide a correct value for field: ${field}`;
 
+const isEmpty = (obj) => {
+    switch(JSON.stringify(obj)) {
+        case "null":
+        case "\"\"":
+        case "[]":
+        case "{}":
+            return true;
+        default:
+            return false;
+    }
+}
+
+
+// recursively remove any empty strings, objects and arrays from obj
+const removeEmpties = (obj) => {
+    if (typeof obj === "string") return obj;
+    if (Array.isArray(obj)) {
+        obj.forEach((o, i) => {
+            obj[i] = removeEmpties(o)
+        });
+        obj = obj.filter(o => !isEmpty(o))
+    } else {
+        for (const key of Object.keys(obj)) {
+            if (!(key === 'community_specific')) {
+                if (isEmpty(obj[key])) {
+                    delete obj[key];
+                }
+                else {
+                    obj[key] = removeEmpties(obj[key]);
+                }
+                if (isEmpty(obj[key])) {
+                    delete obj[key];
+                }
+            }
+        }
+    }
+    return obj;
+}
 
 export const EditRecordRoute = React.createClass({
     isDraft: false,
@@ -864,8 +902,9 @@ const EditRecord = React.createClass({
             return;
         }
         const errors = {};
-        const r = this.state.record;
-
+        let r = this.state.record;
+        const clean = removeEmpties(r.toJS())
+        r = fromJS(clean);
         this.findValidationErrorsRec(errors, rootSchema, [], r);
         blockSchemas.forEach(([blockID, blockSchema]) => {
             const schema = blockSchema.get('json_schema');
@@ -890,7 +929,8 @@ const EditRecord = React.createClass({
         notifications.clearAll();
         // determine if there are any changes in the original and current record
         const original = this.props.record.get('metadata').toJS();
-        const updated = this.state.record.toJS();
+        let updated = this.state.record.toJS();
+        updated = removeEmpties(updated);
         const patch = compare(original, updated);
         if (!patch || !patch.length) {
             this.setState({dirty: false});

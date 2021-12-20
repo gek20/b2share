@@ -22,6 +22,7 @@
 .pydevproject
 .settings
 .version
+.vscode
 .ropeproject
 .idea/
 Invenio.egg-info
@@ -53,6 +54,7 @@ webui/app/js/
 webui/app/vendors/
 webui/src/version.js
 webui/package-lock.json
+__pycache__
 webui/app/js/
 CICD.md
 wheels

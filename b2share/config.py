@@ -25,7 +25,7 @@
 
 from __future__ import absolute_import, print_function
 
-import os
+import os, sys
 from datetime import timedelta
 
 from b2share.modules.access.permissions import admin_only, authenticated_only
@@ -33,8 +33,8 @@ from celery.schedules import crontab
 from flask import request
 from invenio_records_rest.utils import deny_all, allow_all
 from b2share.modules.oauthclient.b2access import make_b2access_remote_app
-from b2share.modules.roles import B2ShareRoles
 from b2share.modules.oauthclient.cscaai import make_cscaai_remote_app
+from b2share.modules.roles import B2ShareRoles
 from b2share.modules.records.search import B2ShareRecordsSearch
 from b2share.modules.records.permissions import (
     UpdateRecordPermission, DeleteRecordPermission
@@ -48,6 +48,30 @@ from b2share.modules.records.loaders import record_patch_input_loader
 from b2share.modules.users.loaders import (
     account_json_loader, account_json_patch_loader,
 )
+
+
+print("---------------------- DEBUG: config.py ----------------------")
+
+SECRETS_FILE = os.getcwd() + "/b2share/secrets.py"
+if os.path.exists(SECRETS_FILE):
+    print ("File of interest found!")
+    ### This is not recommended method!
+    from b2share.secrets import *
+else:
+    print ("No file of interest found!")
+    print (f"Current folder: {os.getcwd()}")
+
+# try:
+#     print (f"DEBUG: B2ACCESS_CONSUMER_KEY : {B2ACCESS_CONSUMER_KEY}")
+#     print (f"DEBUG: B2ACCESS_SECRET_KEY   : {B2ACCESS_SECRET_KEY}")
+#     print (f"DEBUG: SECRET_CHECK          : {SECRET_CHECK}")
+#     print (f"DEBUG: SECRET_KEY            : {SECRET_KEY}")
+# except NameError:
+#     print ("We has erooors!")
+#     if B2SHARE_SECRET_CHECK and B2SHARE_SECRET_KEY:
+#         print ("NON-stripped vaules found")
+#         print (f"DEBUG: B2SHARE_SECRET_CHECK  : {B2SHARE_SECRET_CHECK}")
+#         print (f"DEBUG: B2SHARE_SECRET_KEY    : {B2SHARE_SECRET_KEY}")
 
 
 SUPPORT_EMAIL = None # must be setup in the local instances
@@ -197,25 +221,11 @@ RECORDS_REST_DEFAULT_UPDATE_PERMISSION_FACTORY = None
 RECORDS_REST_DEFAULT_DELETE_PERMISSION_FACTORY = \
     'b2share.modules.records.permissions:DeleteRecordPermission'
 
-B2ACCESS_APP_CREDENTIALS = dict(
-    # B2ACCESS authentication key and secret
-    consumer_key=os.environ.get("B2ACCESS_CONSUMER_KEY"),
-    consumer_secret=os.environ.get("B2ACCESS_SECRET_KEY"),
-)
-
-
-CSCAAI_APP_CREDENTIALS = dict(
-    # CSCAAI authentication key and secret
-    consumer_key=os.environ.get("CSCAAI_CONSUMER_KEY"),
-    consumer_secret=os.environ.get("CSCAAI_SECRET_KEY"),
-)
-
 
 B2ACCESS_BASE_URL = 'https://b2access.eudat.eu/'
 if os.environ.get("USE_STAGING_B2ACCESS"):
     B2ACCESS_BASE_URL = 'https://b2access-integration.fz-juelich.de'
 
-CSCAAI_ALLOWED_ORGANIZATIONS = os.environ.get("B2SHARE_ALLOWED_ORGANIZATIONS")
 
 CSCAAI_BASE_URL = 'https://user-auth.csc.fi/'
 if os.environ.get("USE_STAGING_CSCAAI"):
@@ -226,7 +236,7 @@ OAUTHCLIENT_REMOTE_APPS = dict(
     cscaai=make_cscaai_remote_app(CSCAAI_BASE_URL)
 )
 
-
+CSCAAI_ALLOWED_ORGANIZATIONS = os.environ.get("B2SHARE_ALLOWED_ORGANIZATIONS")
 
 # Don't let Invenio Accounts register Flask Security
 ACCOUNTS_REGISTER_BLUEPRINT = False
@@ -360,58 +370,59 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 
+# ------------------------------------------------------------- #
+# B2ACCESS authentication key and secret
+if B2ACCESS_CONSUMER_KEY and B2ACCESS_SECRET_KEY:
+    # print ("DEBUG: Setting up B2ACCESS credentials from secrets.")
+    B2ACCESS_APP_CREDENTIALS = dict(
+        consumer_key=B2ACCESS_CONSUMER_KEY,
+        consumer_secret=B2ACCESS_SECRET_KEY,
+    )
+else:
+    print ("DEBUG: Setting up B2ACCESS credentials from ENV, if provided.")
+    B2ACCESS_APP_CREDENTIALS = dict(
+        consumer_key=os.environ.get("B2ACCESS_CONSUMER_KEY"),
+        consumer_secret=os.environ.get("B2ACCESS_SECRET_KEY"),
+    )
+
+
+# CSCAAI authentication key and secret
+if CSCAAI_CONSUMER_KEY and CSCAAI_SECRET_KEY:
+    # print ("DEBUG: Setting up CSCAAI credentials from secrets.")
+    CSCAAI_APP_CREDENTIALS = dict(
+        consumer_key=CSCAAI_CONSUMER_KEY,
+        consumer_secret=CSCAAI_SECRET_KEY,
+    )
+else:
+    print ("DEBUG: Setting up CSCAAI credentials from ENV, if provided.")
+    CSCAAI_APP_CREDENTIALS = dict(
+        consumer_key=os.environ.get("CSCAAI_CONSUMER_KEY"),
+        consumer_secret=os.environ.get("CSCAAI_SECRET_KEY"),
+    )
+# ------------------------------------------------------------- #
+
+
 # ePIC PID config
 # ===============
-
-CFG_HANDLE_SYSTEM_BASEURL = 'https://epic-pid.storage.surfsara.nl:8003'
-CFG_FAIL_ON_MISSING_PID = False
-CFG_FAIL_ON_MISSING_FILE_PID = False
-
-## uncomment and configure PID_HANDLE_CREDENTIALS for Handle servers v8 or above
-# PID_HANDLE_CREDENTIALS = {
-#   "handle_server_url": "https://fqdn:<port>",
-#   "private_key": "/<path>/<index>_<prefix>_ADMIN_privkey.pem",
-#   "certificate_only": "/<path>/<index>_<prefix>_ADMIN_certificate_only.pem",
-#   "prefix": "<prefix>",
-#   "handleowner": "200:0.NA/<prefix>",
-#   "reverse_username": "<prefix>",
-#   "reverse_password": "<password>",
-#   "HTTPS_verify": "True"
-# }
-
-## uncomment and configure the following for Handle servers supporting the ePIC API
-# CFG_EPIC_USERNAME = 0000
-# CFG_EPIC_PASSWORD = ''
-# CFG_EPIC_BASEURL = 'https://epic4.storage.surfsara.nl/v2_A/handles/'
-# CFG_EPIC_PREFIX = 0000
-
-# for manual testing purposes, FAKE_EPIC_PID can be set to True
-# in which case a fake epic pid will be generated for records
-# FAKE_EPIC_PID = False
+# In b2share.cfg
 
 
 # DOI config
 # ==========
-
-AUTOMATICALLY_ASSIGN_DOI = False
-DOI_IDENTIFIER_FORMAT = 'b2share.{recid}'
-CFG_FAIL_ON_MISSING_DOI = False
-
-PIDSTORE_DATACITE_TESTMODE = False
-PIDSTORE_DATACITE_DOI_PREFIX = "XXXX"
-PIDSTORE_DATACITE_USERNAME = "XXXX"
-PIDSTORE_DATACITE_PASSWORD = "XXXX"
-
-# for manual testing purposes, FAKE_DOI can be set to True
-# in which case a fake DOI will be generated for records
-FAKE_DOI = True
+# In b2share.cfg
 
 
+# B2DROP pull config
+# ==========
 B2DROP_SERVER = {
     'host': 'b2drop.eudat.eu',
     'protocol': 'https',
     'path': '/remote.php/webdav/',
 }
+
+
+# Other
+# ==========
 
 
 # comment B2NOTE_URL to hide b2note buttons
@@ -439,7 +450,9 @@ FILES_REST_DEFAULT_QUOTA_SIZE = 20 * 1024 * 1024 * 1024 # 20 GB per record
 
 # prominently displayed on the front page, except when set to "production"
 # and also returned by the REST API when querying http://<HOSTNAME>/api
-SITE_FUNCTION = 'demo' # set to "production" on production instances
+# SITE_FUNCTION = 'demo' # set to "production" on production instances
+# if os.environ.get("SITE_FUNCTION"):
+#     SITE_FUNCTION = os.environ.get("SITE_FUNCTION")
 
 # if the TRAINING_SITE_LINK parameter is not empty, a message will show up
 # on the front page redirecting the testers to this link

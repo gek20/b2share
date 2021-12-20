@@ -1,11 +1,19 @@
 #!/bin/bash -e
+
 # This file is supposed to live in a docker container
+
+mkdir -p /usr/var/b2share-instance
 
 # wait for all the services to start
 # FIXME: we should have some shell code to check that instead of a sleep.
-sleep 30
+sleep 5
 
-if [ ! -f /usr/var/b2share-instance/provisioned ]; then
+# Get secrets from vault agent
+[[ ${USE_VAULT_AGENT} ]] && /usr/bin/python3 /usr/local/bin/get-agent-values.py &
+
+sleep 20
+
+if [ ! -f /usr/var/b2share-instance/state/provisioned ]; then
 
     # if a config file already exists, continue
     /usr/local/bin/b2share demo load_config || true
@@ -23,7 +31,7 @@ if [ ! -f /usr/var/b2share-instance/provisioned ]; then
         /usr/local/bin/b2share files add-location 'local' file:///usr/var/b2share-instance/files --default
     fi
 
-    touch /usr/var/b2share-instance/provisioned
+    touch /usr/var/b2share-instance/state/provisioned
 fi
 
 # safe to run even when up to date

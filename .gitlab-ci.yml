@@ -1,49 +1,41 @@
-#TODO artifactory url
-image: eudat-docker.artifactory.ci.csc.fi/docker/compose:alpine-1.28.5
+image: eudat-docker.artifactory.ci.csc.fi/docker/compose:alpine-1.29.2
+
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+  - local: templates/utility.yml
+  - local: templates/secrets.yml
 
 variables:
-  ARTIFACTORY_URL: https://eudat-docker.artifactory.ci.csc.fi/artifactory
-  ARTIFACTORY_NPM_REPO: https://artifactory.ci.csc.fi/artifactory/api/npm/eudat-npm/
-  ARTIFACTORY_PIP_REPO: artifactory.ci.csc.fi/artifactory/api/pypi/eudat-pypi-remote/simple
-  ARTIFACTORY_DOCKER_REPO: eudat-docker.artifactory.ci.csc.fi
-  ARTIFACTORY_PIP_CACHE: artifactory.ci.csc.fi/artifactory/api/pypi/eudat-pypi-remote-cache/simple
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  DEFAULT_IMAGE: b2share-fmi-dev
+  DEFAULT_TAG: 2.2.0
+  SAST_GOSEC_LEVEL: 2
+  # The URL of your Vault server, such as https://vault.example.com:8200. Required.
+  VAULT_SERVER_URL: https://dev.vault.eudat.csc.fi:8200
+  # The role to use when attempting to authenticate. Optional. If no role is specified, Vault uses the default role specified when the authentication method was configured.
+  VAULT_AUTH_ROLE: gitlab-b2share-fmi-build-role
 
 cache:
   paths:
     - .cache/pip
 
 stages:
+  - test
   - build
   - container
   # - trigger
 
-# TODO env variable DOCKER_CONFIG to gitlab
-before_script:
-  - apk add --no-cache -q openssh bash git curl jq
-  - git config --global advice.detachedHead false
-  # Re-enable jfrog, after properly configured at artifactory side
-  # - curl -sfL https://getcli.jfrog.io | sh
-  # - mv jfrog /usr/local/bin/.
-  # - jfrog config add af-server --artifactory-url=${ARTIFACTORY_URL} --user=${ARTIFACTORY_USER} --password=${ARTIFACTORY_PASSWORD}
-  # - jfrog config show
-  # Following line replaced with docker login
-  # - mkdir -p ~/.docker && cp ${DOCKER_CONFIG_EUDAT_AND_FMI} ~/.docker/config.json
-  - docker login -u ${ARTIFACTORY_USER} -p ${ARTIFACTORY_PASSWORD} ${ARTIFACTORY_DOCKER_REPO}
-
-after_script:
-  - docker image ls
-  - IMGS_TO_REMOVE=$(docker image ls --filter dangling=true -q)
-  - set -exu
-  - '[[ -z ${IMGS_TO_REMOVE} ]] || docker image rm -f ${IMGS_TO_REMOVE}'
-  - docker logout ${ARTIFACTORY_DOCKER_REPO}
+# Now located in templates/utility.yml
+# before_script:
+# after_script:
 
 .job-build-ui: &build_ui
   stage: build
-  before_script: []
+  before_script: !reference [.config, common]
   after_script: []
   cache: []
   image: eudat-docker.artifactory.ci.csc.fi/builder-cos7
+  secrets: !reference [.suss, secrets]
   script:
     - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
     # Build webui
@@ -57,9 +49,10 @@ after_script:
 
 .job-create-wheels: &create_wheels
   stage: build
-  before_script: []
+  before_script: !reference [.config, common]
   after_script: []
   image: eudat-docker.artifactory.ci.csc.fi/builder-cos7
+  secrets: !reference [.suss, secrets]
   script:
     - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
     # create wheels for B2SHARE
@@ -77,24 +70,29 @@ after_script:
     GIT_STRATEGY: clone
     REMOTE_REPOSITORY: https://gitlab.ci.csc.fi/eudat/b2share/b2share-github.git
     DEFAULT_REMOTE_BRANCH: jl-cicd
-    DEFAULT_IMAGE: b2share-fmi-dev
-    DEFAULT_TAG: 2.2.0
     DEPLOY_ENV: development
-
-  # CI_variables from gitlab
+  secrets: !reference [.suss, secrets]
   script:
     - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
+    - !reference [.config, common]
     # Take into account variables coming from upstream, if any
     - export IMAGE_BASE=${IMAGE:-${DEFAULT_IMAGE}}
     - export TAG=${TAG:-${DEFAULT_TAG}}
+    - |
+      export \
+        ARTIFACTORY_URL=${ARTIFACTORY_URL} \
+        ARTIFACTORY_USER=${ARTIFACTORY_USER} \
+        ARTIFACTORY_PASS=${ARTIFACTORY_PASS} \
+        ARTIFACTORY_REGISTRY=${ARTIFACTORY_REGISTRY}
     # Copy certificate files
-    #TODO check dis
+    # TODO check dis
     # Probably not needed
     # - echo "${T12996_USER01_325_certificate_only}" > usr/var/b2share-instance/21.T12996_USER01_325_certificate_only.pem
     # - echo "${T12996_USER01_325_privkey}" > usr/var/b2share-instance/21.T12996_USER01_325_privkey.pem
     # Returns IMAGE_SHA (in file 'build_var')
     - ./ci-scripts/build-container.sh
     - '[[ -f ./build_var ]] && export IMAGE_SHA=$(cat ./build_var) || echo -e "\nNO SHA variable available\n"'
+    - echo -e "IMAGE_SHA - ${IMAGE_SHA}"
     - |
       echo -e "\nTriggering deployment pipeline\n"
       set -exu
@@ -106,7 +104,7 @@ after_script:
         -F "variables[DEPLOY_ENV]=${DEPLOY_ENV}" \
         -F "variables[IMAGE_BASE]=${IMAGE_BASE}" \
         -F "variables[IMAGE_SHA]=${IMAGE_SHA}" \
-        https://gitlab.ci.csc.fi/api/v4/projects/300/trigger/pipeline | jq .
+        ${CI_API_V4_URL}/projects/300/trigger/pipeline | jq .
 
 build-ui:
   when: always

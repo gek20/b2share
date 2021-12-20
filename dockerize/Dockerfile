@@ -55,22 +55,6 @@ RUN git clone https://github.com/EUDAT-B2SHARE/public-license-selector.git && \
     cp dist/license-selector.* /eudat/b2share/webui/app/vendors/
 
 
-# # this next RUN is just a workaround for the old version of node on centos7
-# # without it, the npm run build fails when compiling less files
-# # MOVED TO upper RUN command
-# RUN node --version && \
-#     npm --version
-# RUN mv webpack.config.js webpack.config.js.0
-# RUN echo "require('es6-promise').polyfill();" > webpack.config.js
-# RUN cat webpack.config.js.0 >> webpack.config.js
-# RUN npm install es6-promise
-
-# RUN npm run build
-
-# RUN node_modules/webpack/bin/webpack.js -p
-# RUN mkdir -p /eudat/b2share/webui/app/vendors
-# RUN cp dist/license-selector.* /eudat/b2share/webui/app/vendors/
-
 #
 # Install B2Share webui module and dependencies
 # NO NEED TO BUILD UI AT THIS STAGE, BUILDED AT GITLAB CI PREVIOUS JOB
@@ -98,7 +82,7 @@ WORKDIR /eudat/b2share
 ADD setup.py setup.py
 ADD b2share/version.py b2share/version.py
 ADD requirements.txt requirements.txt
-
+COPY shim/get-agent-values.py /usr/local/bin/
 COPY wheels wheels
 
 RUN pip3 install --find-links ./wheels -r requirements.txt && \

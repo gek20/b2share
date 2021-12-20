@@ -87,6 +87,7 @@ created. It will be necessary at some point to refactor it.
 
 import os
 import sys
+import json
 
 from flask import Flask
 from invenio_base.app import create_app_factory
@@ -95,6 +96,26 @@ from werkzeug.wsgi import DispatcherMiddleware
 from werkzeug.contrib.fixers import ProxyFix
 
 from . import config
+
+print("---------------------- DEBUG: factory.py ----------------------")
+
+# SECRETS_FILE = os.getcwd() + "/b2share/secrets.json"
+# if os.path.exists(SECRETS_FILE):
+#     print ("File of interest found!")
+#     with open(SECRETS_FILE) as sf:
+#         secrets = json.loads(sf.read())
+# else:
+#     print ("No file of interest found!")
+#     print (f"Current folder: {os.getcwd()}")
+
+# print(f"Type of config     : {type(config)}")
+# print(f"Type of secrets    : {type(secrets)}")
+
+# joint_dict = {**config, **secrets}
+
+# print(f"Type of joint dict : {type(joint_dict)}")
+# print(f"Joint Dict:\n{joint_dict}")
+# print("---------------------------------------------------------------")
 
 env_prefix = 'B2SHARE'
 
@@ -197,13 +218,11 @@ def check_configuration(config, logger):
 
     def check(var_name):
         if not config.get(var_name):
-            error("Configuration variable expected: {}".format(var_name))
-
-    if not os.environ.get('B2SHARE_SECRET_KEY'):
-        error("Environment variable not defined: B2SHARE_SECRET_KEY")
+            error(f"Configuration variable expected: {var_name}")
 
     check('SQLALCHEMY_DATABASE_URI')
-
+    # check('B2SHARE_SECRET_KEY')
+    check('SECRET_KEY')
     check('JSONSCHEMAS_HOST')
     check('PREFERRED_URL_SCHEME')
 
@@ -213,7 +232,7 @@ def check_configuration(config, logger):
     if not config['B2ACCESS_APP_CREDENTIALS'].get('consumer_secret'):
         error("Environment variable not defined: B2ACCESS_SECRET_KEY")
     '''
-    
+
     site_function = config.get('SITE_FUNCTION')
     if site_function and site_function != 'demo':
         if config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite'):

@@ -97,7 +97,7 @@ CFG_FAIL_ON_MISSING_FILE_PID = False
 
 # for manual testing purposes, FAKE_EPIC_PID can be set to True
 # in which case a fake epic pid will be generated for records
-# FAKE_EPIC_PID = False
+FAKE_EPIC_PID = True
 
 
 
@@ -114,7 +114,7 @@ PIDSTORE_DATACITE_PASSWORD = "XXXX"
 
 # for manual testing purposes, FAKE_DOI can be set to True
 # in which case a fake DOI will be generated for records
-# FAKE_DOI = False
+FAKE_DOI = True
 
 
 

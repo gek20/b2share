@@ -85,7 +85,7 @@ ADD requirements.txt requirements.txt
 COPY shim/get-agent-values.py /usr/local/bin/
 COPY wheels wheels
 
-RUN pip3 install --find-links ./wheels -r requirements.txt && \
+RUN pip3 install --no-index --find-links=./wheels -r requirements.txt && \
     pip3 install -e .
 
 RUN rm /root/.pip/pip.conf

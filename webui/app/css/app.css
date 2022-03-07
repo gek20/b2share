@@ -166,6 +166,9 @@ a {
     color: #264899;
     transition: ease-out 0.4s;
     text-decoration: none!important;
+    word-break: break-word;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 a:hover {

@@ -1,6 +1,7 @@
 import React from 'react/lib/ReactWithAddons';
 const urlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/
 import { List } from 'immutable';
+import { Link } from 'react-router';
 
 export const ExternalUrls = React.createClass({
     getInitialState() {
@@ -103,7 +104,7 @@ export const ExternalUrlsRec = (props) => {
             { props.urls.map((url) => (
                 <div className='row'>
                     <div className='col-sm-12'>
-                        <a>{ url }</a>
+                        <Link to={url} target="_blank">{ url }</Link>
                     </div>
                 </div>
             )) }

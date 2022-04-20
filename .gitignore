@@ -12,6 +12,7 @@
 *.sbcl.core
 *.sse2f
 *.x86f
+*.tar
 *~
 .DS_Store
 .coverage

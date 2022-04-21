@@ -69,7 +69,7 @@ stages:
   variables:
     GIT_STRATEGY: clone
     REMOTE_REPOSITORY: https://gitlab.ci.csc.fi/eudat/b2share/b2share-github.git
-    DEFAULT_REMOTE_BRANCH: jl-cicd
+    DEFAULT_REMOTE_BRANCH: master
     DEPLOY_ENV: development
   secrets: !reference [.suss, secrets]
   script:

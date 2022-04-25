@@ -125,6 +125,9 @@ FAKE_DOI = True
 # on the front page redirecting the testers to this link
 TRAINING_SITE_LINK = ""
 
+# the front page subheader link
+RESEARCH_POLICY_LINK = "https://en.ilmatieteenlaitos.fi/researchdatapolicy"
+
 # comment B2NOTE_URL to hide b2note buttons
 B2NOTE_URL = 'https://b2note.bsc.es'
 

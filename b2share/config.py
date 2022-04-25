@@ -482,6 +482,8 @@ FILES_REST_DEFAULT_QUOTA_SIZE = 20 * 1024 * 1024 * 1024 # 20 GB per record
 # on the front page redirecting the testers to this link
 TRAINING_SITE_LINK = ""
 
+# the front page subheader link
+RESEARCH_POLICY_LINK = "https://en.ilmatieteenlaitos.fi/researchdatapolicy"
 
 # Invenio Stats
 # ==============

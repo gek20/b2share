@@ -13,13 +13,14 @@ export const HomeRoute = React.createClass({
         const info = serverCache.getInfo();
         const b2access = info.get('b2access_registration_link');
         const training_site = info.get('training_site_link');
+        const research_policy_link = info.get('research_policy_link');
         return (
             <div className="container-fluid home-page">
                 <div className="row">
                     <div className="col-sm-12">
                         <div style={{margin:'2em 0', textAlign: 'center'}}>
-                            <h3>Store and publish your research data</h3>
-                            <p>Search in public datasets or register as a user to upload and publish your data!</p>
+                            <h2>METIS - FMI's Research Data repository</h2>
+                            <p>Please read the <a href={research_policy_link} target="_blank">FMI's Research Data Policy here</a></p>
                             { training_site ?
                                 <p>Please use <a href={training_site}>{training_site}</a> for testing or training.</p>
                                 : false }

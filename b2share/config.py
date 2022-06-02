@@ -428,12 +428,49 @@ else:
 
 # ePIC PID config
 # ===============
-# In b2share.cfg
+
+CFG_HANDLE_SYSTEM_BASEURL = 'https://epic-pid.storage.surfsara.nl:8003'
+CFG_FAIL_ON_MISSING_PID = False
+CFG_FAIL_ON_MISSING_FILE_PID = False
+
+## uncomment and configure PID_HANDLE_CREDENTIALS for Handle servers v8 or above
+# PID_HANDLE_CREDENTIALS = {
+#   "handle_server_url": "https://fqdn:<port>",
+#   "private_key": "/<path>/<index>_<prefix>_ADMIN_privkey.pem",
+#   "certificate_only": "/<path>/<index>_<prefix>_ADMIN_certificate_only.pem",
+#   "prefix": "<prefix>",
+#   "handleowner": "200:0.NA/<prefix>",
+#   "reverse_username": "<prefix>",
+#   "reverse_password": "<password>",
+#   "HTTPS_verify": "True"
+# }
+
+## uncomment and configure the following for Handle servers supporting the ePIC API
+# CFG_EPIC_USERNAME = 0000
+# CFG_EPIC_PASSWORD = ''
+# CFG_EPIC_BASEURL = 'https://epic4.storage.surfsara.nl/v2_A/handles/'
+# CFG_EPIC_PREFIX = 0000
+
+# for manual testing purposes, FAKE_EPIC_PID can be set to True
+# in which case a fake epic pid will be generated for records
+# FAKE_EPIC_PID = False
 
 
 # DOI config
 # ==========
-# In b2share.cfg
+
+AUTOMATICALLY_ASSIGN_DOI = False
+DOI_IDENTIFIER_FORMAT = 'b2share.{recid}'
+CFG_FAIL_ON_MISSING_DOI = False
+
+PIDSTORE_DATACITE_TESTMODE = False
+PIDSTORE_DATACITE_DOI_PREFIX = "XXXX"
+PIDSTORE_DATACITE_USERNAME = "XXXX"
+PIDSTORE_DATACITE_PASSWORD = "XXXX"
+
+# for manual testing purposes, FAKE_DOI can be set to True
+# in which case a fake DOI will be generated for records
+FAKE_DOI = True
 
 
 # B2DROP pull config
@@ -474,7 +511,7 @@ FILES_REST_DEFAULT_QUOTA_SIZE = 20 * 1024 * 1024 * 1024 # 20 GB per record
 
 # prominently displayed on the front page, except when set to "production"
 # and also returned by the REST API when querying http://<HOSTNAME>/api
-# SITE_FUNCTION = 'demo' # set to "production" on production instances
+SITE_FUNCTION = 'demo' # set to "production" on production instances
 # if os.environ.get("SITE_FUNCTION"):
 #     SITE_FUNCTION = os.environ.get("SITE_FUNCTION")
 

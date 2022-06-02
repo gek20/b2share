@@ -103,7 +103,7 @@ jsonpatch==1.16           # via invenio-records
 jsonpointer==1.10         # via jsonpatch
 jsonref==0.1              # via invenio-jsonschemas, invenio-records
 jsonresolver[jsonschema]==0.2.1
-jsonschema         # via datacite, doschema, invenio-records, jsonresolver
+jsonschema==3.2.0         # via datacite, doschema, invenio-records, jsonresolver
 kombu==4.1.0              # via celery, invenio-queues
 lxml==4.6.3               # via datacite, dcxml, dojson, invenio-oaiserver
 mako==1.0.6               # via alembic

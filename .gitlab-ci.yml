@@ -57,7 +57,9 @@ stages:
     - echo -e "| Debug \n| Stage = ${CI_JOB_STAGE} \n| Job = ${CI_JOB_NAME} \n"
     # create wheels for B2SHARE
     - pip3 install wheel
-    - pip3 wheel --wheel-dir=./wheels --find-links=$CI_PROJECT_DIR/.cache/pip/wheels/wheels -r requirements.txt
+    - curl -o wheels.tar https://a3s.fi/swift/v1/AUTH_684b53b6e8094581b13ece74e79f489b/wheel-storage/wheels.tar && tar -xvf wheels.tar
+    - pip3 wheel --wheel-dir=./wheels --find-links=./wheels -r requirements.txt
+    - ls -la wheels
   artifacts:
     paths:
       - wheels

@@ -1,6 +1,6 @@
 default:
   before_script:
-    - apk add --no-cache -q openssh bash git curl jq
+    - apk add --no-cache -q openssh bash git curl jq wget
     - curl -sfL https://install-cli.jfrog.io | sh
 
   after_script:

@@ -74,30 +74,6 @@ else:
 #         print (f"DEBUG: B2SHARE_SECRET_KEY    : {B2SHARE_SECRET_KEY}")
 
 
-print("---------------------- DEBUG: config.py ----------------------")
-
-SECRETS_FILE = os.getcwd() + "/b2share/secrets.py"
-if os.path.exists(SECRETS_FILE):
-    print ("File of interest found!")
-    ### This is not recommended method!
-    from b2share.secrets import *
-else:
-    print ("No file of interest found!")
-    print (f"Current folder: {os.getcwd()}")
-
-# try:
-#     print (f"DEBUG: B2ACCESS_CONSUMER_KEY : {B2ACCESS_CONSUMER_KEY}")
-#     print (f"DEBUG: B2ACCESS_SECRET_KEY   : {B2ACCESS_SECRET_KEY}")
-#     print (f"DEBUG: SECRET_CHECK          : {SECRET_CHECK}")
-#     print (f"DEBUG: SECRET_KEY            : {SECRET_KEY}")
-# except NameError:
-#     print ("We has erooors!")
-#     if B2SHARE_SECRET_CHECK and B2SHARE_SECRET_KEY:
-#         print ("NON-stripped vaules found")
-#         print (f"DEBUG: B2SHARE_SECRET_CHECK  : {B2SHARE_SECRET_CHECK}")
-#         print (f"DEBUG: B2SHARE_SECRET_KEY    : {B2SHARE_SECRET_KEY}")
-
-
 SUPPORT_EMAIL = None # must be setup in the local instances
 MAIL_SUPPRESS_SEND = True # this should be removed on a real instance
 MIGRATION_LOGFILE = '/tmp/migration.log' #to log migration exceptions

@@ -376,10 +376,7 @@ class B2ShareRecordResource(RecordResource):
         #. The ETag is checked.
         #. The record is patched.
         #. The HTTP response is built with the help of the link factory.
-<<<<<<< HEAD
-=======
 
->>>>>>> a6cd4dde4 (Update DataCite metadata when patching records)
         :param pid: Persistent identifier for record.
         :param record: Record object.
         :returns: The modified record.

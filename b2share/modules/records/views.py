@@ -334,6 +334,12 @@ class B2ShareRecordsListResource(RecordsListResource):
         if data is None:
             abort(400)
 
+        # When creating a new version of a record, remove metax relation from alternate identifiers, if metax is enabled
+        # New record version will get it's own identifier, when Celery task runs.
+        # This could be done with before-record-insert signal
+        if current_app.config.get('ENABLE_METAX') and version_of and data.get('alternate_identifiers'):
+            data['alternate_identifiers'] = list(filter(lambda identifier: not identifier['alternate_identifier'].startswith('https://etsin'), data['alternate_identifiers']))
+
         # Check permissions
         permission_factory = self.create_permission_factory
         if permission_factory:
@@ -409,6 +415,10 @@ class B2ShareRecordResource(RecordResource):
                     datacite_provider.update(url, doc)
                 except:
                     current_app.logger.error("Error in DataCite metadata update", exc_info=True)
+        # This could be done as a after-record-insert signal. Check line 339
+        if current_app.config.get('ENABLE_METAX'):
+            from b2share.modules.metax.tasks import update_metax
+            update_metax.delay(record)
         return self.make_response(
             pid, record, links_factory=self.links_factory)
 

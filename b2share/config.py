@@ -51,6 +51,10 @@ from b2share.modules.users.loaders import (
 
 
 print("---------------------- DEBUG: config.py ----------------------")
+B2ACCESS_CONSUMER_KEY=0
+B2ACCESS_SECRET_KEY=0
+CSCAAI_CONSUMER_KEY=0
+CSCAAI_SECRET_KEY=0
 
 SECRETS_FILE = os.getcwd() + "/b2share/secrets.py"
 if os.path.exists(SECRETS_FILE):
@@ -329,6 +333,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'invenio_indexer.tasks.process_bulk_queue',
         'schedule': timedelta(minutes=5),
     },
+    'publish-to-metax': {
+        'task': 'b2share.modules.metax.tasks.publish_to_metax',
+        'schedule': timedelta(minutes=10),
+    },
     'process-file-downloads': {
         'task': 'invenio_stats.tasks.process_events',
         'schedule': timedelta(minutes=5),
@@ -401,11 +409,22 @@ else:
     )
 # ------------------------------------------------------------- #
 
+METAX_API_URL=os.environ.get('METAX_API_URL')
+METAX_API_CATALOG=os.environ.get('METAX_API_CATALOG')
+
+# FOR PRODUCTION USE:
+# METAX_PUBLISH_URL='https://etsin.fairdata.fi/dataset'
+
+# FOR TESTING AND DEVELOPMENT USE:
+METAX_PUBLISH_PREFIX='https://etsin.demo.fairdata.fi/dataset/'
+
+METAX_DOI_PREFIX='doi:'
+ENABLE_METAX=False
 
 # ePIC PID config
 # ===============
 
-CFG_HANDLE_SYSTEM_BASEURL = 'https://epic-pid.storage.surfsara.nl:8003'
+CFG_HANDLE_SYSTEM_BASEURL = 'http://hdl.handle.net'
 CFG_FAIL_ON_MISSING_PID = False
 CFG_FAIL_ON_MISSING_FILE_PID = False
 
@@ -429,20 +448,21 @@ CFG_FAIL_ON_MISSING_FILE_PID = False
 
 # for manual testing purposes, FAKE_EPIC_PID can be set to True
 # in which case a fake epic pid will be generated for records
-# FAKE_EPIC_PID = False
+FAKE_EPIC_PID = True
 
 
 # DOI config
 # ==========
 
-AUTOMATICALLY_ASSIGN_DOI = False
-DOI_IDENTIFIER_FORMAT = 'b2share.{recid}'
+AUTOMATICALLY_ASSIGN_DOI = False # change to True to have DOIs allocated on publish
+DOI_IDENTIFIER_FORMAT = 'fmi-b2share.{recid}'
 CFG_FAIL_ON_MISSING_DOI = False
 
 PIDSTORE_DATACITE_TESTMODE = False
-PIDSTORE_DATACITE_DOI_PREFIX = "XXXX"
-PIDSTORE_DATACITE_USERNAME = "XXXX"
-PIDSTORE_DATACITE_PASSWORD = "XXXX"
+PIDSTORE_DATACITE_DOI_PREFIX = "10.80865"
+PIDSTORE_DATACITE_USERNAME = "LSOI.AYFDFN"
+PIDSTORE_DATACITE_PASSWORD = "KXYXTcGbzadn7F8utMrBmzqFbMZy"
+PIDSTORE_DATACITE_URL = 'https://mds.test.datacite.org'
 
 # for manual testing purposes, FAKE_DOI can be set to True
 # in which case a fake DOI will be generated for records

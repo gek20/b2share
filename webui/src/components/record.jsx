@@ -433,7 +433,7 @@ const Record = React.createClass({
         }
 
         if(this.state.responsestatus == null){
-            //This if is for the cationbox not to rendering anything before it has fetched something from the DOI.
+            //This if is for the citationbox not to rendering anything before it has fetched something from the DOI.
         } else if(this.state.responseok == true){
             function onButtonClick() {
                 const headers= {"Accept":"application/x-bibtex"};

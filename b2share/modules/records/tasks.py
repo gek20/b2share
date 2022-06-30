@@ -37,6 +37,8 @@ from invenio_search import current_search_client
 from .search import B2ShareRecordsSearch
 from b2share.utils import get_base_url
 
+from ..metax.tasks import update_metax
+
 
 @shared_task(ignore_result=True)
 def update_expired_embargoes():
@@ -64,6 +66,7 @@ def update_expired_embargoes():
                 record.id))
             record['open_access'] = True
             record.commit()
+            update_metax.delay(record)
         db.session.commit()
 
         indexer = RecordIndexer()

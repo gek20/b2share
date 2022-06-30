@@ -1,5 +1,5 @@
 # Use builder image. It has some preinstalled dependencies
-FROM eudat-docker.artifactory.ci.csc.fi/builder-cos7
+FROM eudat-docker.artifactory.ci.csc.fi/builder-cos7 AS base
 
 # LABEL maintainer Petri Laihonen <petri.laihonen@csc.fi>
 LABEL maintainer Johannes Lares <johannes.lares@csc.fi>

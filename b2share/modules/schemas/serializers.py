@@ -90,7 +90,7 @@ def block_schema_version_to_json_serializer(block_schema_version, code=200,
     Returns:
         Response: serialized response from BlockSchemaVersion.
     """
-    response = jsonify(block_schema_version_to_dict(block_schema_version))
+    response = jsonify_keeporder(block_schema_version_to_dict(block_schema_version))
     response.status_code = code
     if headers is not None:
         response.headers.extend(headers)

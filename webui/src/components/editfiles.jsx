@@ -845,53 +845,6 @@ export const PersistentIdentifier = React.createClass({
     },
 });
 
-export const CitationBox = React.createClass({
-    getInitialState() {
-        return {data: null, error: false}
-    },
-    fetch() {
-        const headers= {"Accept":"text/x-bibliography; style=apa"};
-        const url = this.props.doi.replace('http', 'https');
-        fetch(url, {headers})
-            .then(response=>response.text())
-            .then(text=>this.setState({data: text.replace(/<\/?i>/g, "").replace(/&amp;/g, '&'), error: false}))
-            .catch(e => this.setState({error: true}));
-    },
-    componentDidMount() {
-        this.fetch();
-    },
-    render: function() {
-        if (this.state.error) return (
-                <div>
-                    <div class="row">
-                        Fetching citation data failed.
-                    </div>
-                    <div class="row">
-                        <button onClick={this.fetch.bind(this)}>Try again</button>
-                    </div>
-                </div>
-            )
-        else if (this.state.data) return(
-            <span>{this.state.data}</span>
-        );
-        return null;
-    }
-});
-
-export const BibtexExport = React.createClass({
-    onButtonClick() {
-        const headers= {"Accept":"application/x-bibtex"};
-        const url = this.props.doi.replace('http', 'https')
-        fetch(url, {headers}).then(response=>response.text()).then(text=>copyToClipboard(text));
-    },
-    render: function() {
-    return (
-        <span style={this.props.style}>
-            <span><a className="btn btn-xs btn-default" onClick={this.onButtonClick.bind(this)} title="Copy BibTeX"><i className="fa fa-clipboard"/></a></span>
-        </span>
-    );
-}});
-
 
 export function copyToClipboard(text) {
     // from https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript

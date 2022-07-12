@@ -261,9 +261,9 @@ const EditRecordFieldTree = React.createClass({
     },
 
     renderScalarField(schema, path, buttons={}, options={}) {
-        const onDateChange = (date, callback) => {
+        const onDateChange = (date) => {
             const m = moment(date);
-            this.setValue(schema, path, m.isValid() ? m.toISOString() : undefined, callback);
+            this.setValue(schema, path, m.isValid() ? m.toISOString() : undefined, this.props.forceReRender);
         }
 
         const onEmbargoDateChange = date => {
@@ -272,13 +272,12 @@ const EditRecordFieldTree = React.createClass({
             const access = m.isValid() ? (moment().diff(m) > 0) : true;
             this.setValue(null, ['open_access'], access,
                 () => this.setValue(null, ['publication_date'], m.isValid() ? m.toISOString() : undefined,
-                    () => onDateChange(m, () => this.props.forceReRender())));
+                    () => onDateChange(m)));
         };
 
         const onVocabularySelect = (value, type) => {
             // if parent schema path is an object, map all values
             var pschema = this.getParentPathSchema(path);
-
             // if exists, we get the subfields for the element, not the definition of a single field (root schema v1)
             if (pschema && pschema.get('type') == undefined) {
                 // apply all value elements

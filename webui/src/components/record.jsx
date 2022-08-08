@@ -444,7 +444,7 @@ const Record = React.createClass({
                         border : "1px solid transparent",
                         borderradius : "4px"
                     }}>
-                        This citation is not available at this moment.
+                        The citation is not available at this moment.
                     </li>
                 </div>
                 </div>

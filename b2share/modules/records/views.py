@@ -65,8 +65,7 @@ from b2share.modules.deposit.errors import RecordNotFoundVersioningError, \
     IncorrectRecordVersioningError
 from jsonpatch import JsonPatchException, JsonPointerException
 from invenio_pidstore.providers.datacite import DataCiteProvider
-from b2share.modules.records.permissions import DeleteRecordPermission, \
-    UpdateRecordPermission
+from invenio_records_ui.signals import record_viewed
 
 
 # duplicated from invenio-records-rest because we need
@@ -381,6 +380,35 @@ class B2ShareRecordsListResource(RecordsListResource):
 class B2ShareRecordResource(RecordResource):
     """B2Share resource for records."""
 
+    @pass_record
+    @need_record_permission('read_permission_factory')
+    def get(self, pid, record, **kwargs):
+        """Get a record.
+
+        Procedure description:
+
+        #. The record is resolved reading the pid value from the url.
+
+        #. The ETag and If-Modifed-Since is checked.
+
+        #. The HTTP response is built with the help of the link factory.
+
+        :param pid: Persistent identifier for record.
+        :param record: Record object.
+        :returns: The requested record.
+        """
+        etag = str(record.revision_id)
+        self.check_etag(str(record.revision_id))
+        self.check_if_modified_since(record.updated, etag=etag)
+        record_viewed.send(
+            current_app._get_current_object(),
+            pid=pid,
+            record=record,
+        )
+        return self.make_response(
+            pid, record, links_factory=self.links_factory
+        )
+
     @require_content_types('application/json-patch+json')
     @pass_record
     @need_record_permission('update_permission_factory')
@@ -515,6 +543,7 @@ class RecordsVersionsResource(ContentNegotiatedMethodView):
                 'created': rec_meta.created,
                 'updated': rec_meta.updated,
             })
+        
         return {'versions': records}
 
 

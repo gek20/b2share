@@ -112,8 +112,8 @@ COPY webui webui
 #
 
 # WORKDIR /eudat/b2share/webui
-# RUN node_modules/webpack/bin/webpack.js -p
 # RUN npm install --unsafe-perm
+# RUN node_modules/webpack/bin/webpack.js -p
 
 WORKDIR /eudat/b2share
 

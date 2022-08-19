@@ -16,6 +16,7 @@ import { getSchemaOrderedMajorAndMinorFields } from './schema.jsx';
 import PiwikTracker from 'piwik-react-router';
 import { Card } from 'react-bootstrap';
 import { ExternalUrlsRec } from './externalurls.jsx';
+import { TwitterShareButton, TwitterIcon, FacebookShareButton, FacebookIcon} from 'react-share';
 const PT = React.PropTypes;
 
 
@@ -380,6 +381,35 @@ const Record = React.createClass({
         'creators', 'keywords', 'disciplines', 'publication_state',
     ],
     
+    renderShareButtons(doi){
+        const record = this.props.record.toJS ? this.props.record.toJS() : this.props.record;
+        const title = record.metadata.titles[0].title || "";
+        return(
+                <div>
+                <span>
+                <TwitterShareButton
+                    title={title}
+                    url={doi}
+                    windowWidth={800}
+                    windowHeight={800}
+                    style={{cursor: "pointer"}}
+                    ><TwitterIcon size={32} round/>
+                </TwitterShareButton> 
+                </span>
+                <span>
+                <FacebookShareButton
+                    quote={title}
+                    url={doi}
+                    windowWidth={800}
+                    windowHeight={800}
+                    style={{cursor: "pointer"}}
+                    ><FacebookIcon size={32} round/>
+                </FacebookShareButton>
+                </span>
+                </div>
+        )
+    },
+
     renderCitations(doi) {
         
         try {
@@ -412,6 +442,17 @@ const Record = React.createClass({
             }
             return (
                 <div className="well">
+                <div className="row">
+                    <h3 className="col-sm-9">
+                        { 'Share' }
+                    </h3>
+                </div>
+                <div className="row">
+                    <div className="col-sm-9">
+                        {this.renderShareButtons(doi)}
+                    </div>
+                </div>  
+
                 <div className="row">
                     <h3 className="col-sm-9">
                         { 'Cite as' }

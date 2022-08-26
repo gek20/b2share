@@ -36,7 +36,6 @@ from .errors import EpicPIDError
 def create_handle(handle_client, handle_prefix, location,
                   checksum=None, fixed=False):
     """Create a new handle for a file, using the B2HANDLE library."""
-
     try:
         eudat_entries = {
             'EUDAT/FIXED_CONTENT': str(fixed),

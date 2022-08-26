@@ -290,9 +290,10 @@ class Deposit(InvenioDeposit):
             'publication_date': date.today().isoformat(),
             'creators':[{'affiliations': [{'affiliation_name': 'Finnish Meteorological Institute'}]}]
         }
-        for key in default_values:
-            if not data.get(key):
-                data[key] = default_values[key]
+        if not current_app.config.get('TESTING'):
+            for key in default_values:
+                if not data.get(key):
+                    data[key] = default_values[key]
 
         # create file bucket
         if prev_version and prev_version.files:

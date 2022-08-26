@@ -23,7 +23,6 @@ stages:
   - test
   - build
   - container
-  # - trigger
 
 # Now located in templates/utility.yml
 # before_script:
@@ -108,6 +107,19 @@ stages:
         -F "variables[IMAGE_SHA]=${IMAGE_SHA}" \
         ${CI_API_V4_URL}/projects/300/trigger/pipeline | jq .
 
+.job-test: &unit_tests
+  secrets: !reference [.suss, secrets]
+  script:
+    - echo -e "Stage = ${CI_JOB_STAGE} \n"
+    - docker login ${ARTIFACTORY_URL} -u ${ARTIFACTORY_USER} -p ${ARTIFACTORY_PASS}
+    - cd ./ci-docker
+    - docker-compose -f ./docker-compose.test.yml build
+    - ./docker-test.sh
+  artifacts:
+    paths:
+      - logs.log
+    expire_in: 1 day
+
 build-ui:
   when: always
   <<: *build_ui
@@ -119,3 +131,8 @@ createwheels:
 build-container:
   when: on_success
   <<: *make_container
+
+run-unit-tests:
+  only:
+    - merge_requests
+  <<: *unit_tests

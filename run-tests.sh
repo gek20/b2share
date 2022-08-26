@@ -1,3 +1,4 @@
+#!/bin/bash
 # -*- coding: utf-8 -*-
 
-python setup.py test
+python3 setup.py test

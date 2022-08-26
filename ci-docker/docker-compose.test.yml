@@ -1,0 +1,102 @@
+version: '2.3'
+services:
+    postgres:
+        image: postgres:9.6
+        environment:
+            - "POSTGRES_PASSWORD=123456"
+            - "POSTGRES_USER=invenio"
+            - "POSTGRES_DB=invenio"
+            - "PGDATA=/var/lib/postgresql/data"
+        volumes:
+            - "./data/postgres-data:/var/lib/postgresql/data"
+        ports:
+            - "127.0.0.1:5432:5432"
+
+    b2share-base:
+        image: fmilocal:2.2.2
+        command:
+            - /bin/echo
+        environment:
+            - "B2ACCESS_CONSUMER_KEY=xxx"
+            - "B2ACCESS_SECRET_KEY=xxx"
+            - "USE_STAGING_B2ACCESS=True"
+            - "B2SHARE_SECRET_KEY=testing_secret_key"
+            - "JSONSCHEMAS_HOST=localhost:5000"
+            - "INIT_DB_AND_INDEX=${INIT_DB_AND_INDEX}"
+            - "LOAD_DEMO_COMMUNITIES_AND_RECORDS=${LOAD_DEMO_COMMUNITIES_AND_RECORDS}"
+            - "B2SHARE_PREFERRED_URL_SCHEME=https"
+            - "B2SHARE_SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://invenio:123456@postgres:5432/invenio'"
+            - "B2SHARE_CACHE_REDIS_HOST='redis'"
+            - "B2SHARE_CACHE_REDIS_URL='redis://redis:6379/0'"
+            - "B2SHARE_ACCOUNTS_SESSION_REDIS_URL='redis://redis:6379/1'"
+            - "B2SHARE_BROKER_URL='amqp://${B2SHARE_RABBITMQ_USER}:${B2SHARE_RABBITMQ_PASS}@mq:5672/'"
+            - "B2SHARE_CELERY_BROKER_URL='amqp://${B2SHARE_RABBITMQ_USER}:${B2SHARE_RABBITMQ_PASS}@mq:5672/'"
+            - "B2SHARE_CELERY_RESULT_BACKEND='redis://redis:6379/2'"
+            - "B2SHARE_SEARCH_ELASTIC_HOSTS='elasticsearch'"
+            - "CSCAAI_CONSUMER_KEY=xyz"
+            - "CSCAAI_SECRET_KEY=zyx"
+        volumes:
+            - "./data/b2share-data:/usr/var/b2share-instance"
+            #- "../b2share:/eudat/b2share/b2share"
+            
+    elasticsearch:
+        image: eudat-docker.artifactory.ci.csc.fi/eudatb2share/elasticsearch:2.4.6
+        ports:
+            - "127.0.0.1:9200:9200"
+            - "127.0.0.1:9300:9300"
+        volumes:
+            - "./data/elasticsearch-data:/usr/share/elasticsearch/data"
+
+    redis:
+        image: redis:5-alpine
+        ports:
+            - "127.0.0.1:6379:6379"
+        volumes:
+            - "./data/redis-data:/data"
+
+    # nginx:
+    #     build: nginx
+    #     image: eudatb2share/nginx:1.18
+    #     ports:
+    #         - "80:80"
+    #         - "443:443"
+    #     #network_mode: "host"
+    #     volumes:
+    #         - "./nginx/b2share.conf:/etc/nginx/conf.d/b2share.conf"
+    #     links:
+    #        - b2share
+
+    mq:
+        image: rabbitmq:3.8-management-alpine
+        hostname: rabbitmq
+        environment:
+            - "RABBITMQ_DEFAULT_USER=${B2SHARE_RABBITMQ_USER}"
+            - "RABBITMQ_DEFAULT_PASS=${B2SHARE_RABBITMQ_PASS}"
+        ports:
+            - "127.0.0.1:15672:15672"
+            - "127.0.0.1:5672:5672"
+        volumes:
+            - "./data/rabbitmq-data:/var/lib/rabbitmq"
+
+    b2share-test:
+        extends: b2share-base
+        build:
+            dockerfile: tests/Dockerfile
+            context: ../.
+        command:
+            - /eudat/b2share/run-tests-runner.sh
+        container_name: tests
+        ports:
+            - "127.0.0.1:5000:5000"
+            - "127.0.0.1:1984:1984"
+            - "127.0.0.1:5678:5678"
+        #volumes:
+            #- "./b2share:/eudat/b2share/b2share"       
+            #- "../tests:/eudat/b2share/tests"   
+            #- "./logs:/tmp/log/"
+            #- "../run-tests-runner.sh:/eudat/b2share/run-tests.sh"
+        depends_on:
+            - elasticsearch
+            - redis
+            - postgres
+            - mq

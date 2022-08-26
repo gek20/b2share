@@ -1,0 +1,193 @@
+  {
+    "name": "FMI",
+    "description": "FMI community.",
+    "id": "cccccccc-1111-1111-1111-111111111112",
+    "logo": "",
+    "community_schemas": [
+        {
+            "root_schema_version": 1,
+            "json_schema": {
+                "$schema": "http://json-schema.org/draft-04/schema#",
+                "type": "object",
+                "properties": {
+                    "$BLOCK_SCHEMA_ID[FMISchema]": {
+                        "$ref":
+                        "$BLOCK_SCHEMA_VERSION_URL[$BLOCK_SCHEMA_ID[FMISchema]::0]#/json_schema"
+                    }
+                },
+                "additionalProperties": false,
+                "required": ["$BLOCK_SCHEMA_ID[FMISchema]"]
+            }
+        }
+    ],
+    "block_schemas": {
+        "FMISchema": {
+            "id": "bbbbbbbb-1111-1111-1111-111111111112",
+            "versions": [
+                {
+                    "$schema": "http://json-schema.org/draft-04/schema#", 
+                    "additionalProperties": false, 
+                    "b2share": {
+                      "presentation": {
+                        "major": [
+                          "topic", 
+                          "lineage_statement", 
+                          "lineage_sources", 
+                          "lineage_processsteps", 
+                          "parameter", 
+                          "spatialCoverage_resolution", 
+                          "spatialCoverage_levels", 
+                          "measurement_platform", 
+                          "model",
+                          "supplementalinfo", 
+                          "external_url"
+                        ], 
+                        "minor": []
+                      }
+                    }, 
+                    "description": "This is the blueprint of the metadata block specific for the FMI community", 
+                    "properties": { 
+                      "external_url": {
+                        "description": "Link to external data location, e.g. Allas -Service", 
+                        "title": "Link to external data location (URL)", 
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "type": "array", 
+                        "uniqueItems": true
+                      }, 
+                      "lineage_processsteps": {
+                        "description": "Comprehensive information about the procedure by which the algorithm was applied to derive geographic data from the raw instrument measurements, such as datasets, software used, and the processing environment. May include instrumentation, model and process information(algorithms, software references, runtime parameters, procedure descriptions).", 
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "title": "Process step", 
+                        "type": "array", 
+                        "uniqueItems": true
+                      }, 
+                      "lineage_sources": {
+                        "description": "Processed level and other information about the source data used in creating the data. May include for example description, resolution, scale denominator, scope, citation, extents, metadata, reference system, spatial resolution.", 
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "title": "Source data", 
+                        "type": "array", 
+                        "uniqueItems": true
+                      }, 
+                      "lineage_statement": {
+                        "description": "This is a statement on process history and/or overall quality of the data set. Where appropriate it may include a statement whether the data set has been validated or quality assured, whether it is the official version (if multiple versions exist)", 
+                        "title": "Lineage",
+                        "type": "string",
+                        "subheading": "Lineage"
+                      },
+                      "measurement_platform": {
+                        "description": "Description of platform(s) where the instruments are placed", 
+                        "items": {
+                          "type": "string"
+                        }, 
+                        "title": "Platforms", 
+                        "type": "array", 
+                        "uniqueItems": true
+                      },
+                      "model": {
+                        "type": "string",
+                        "title": "Model",
+                        "description": "Model"
+                      },
+                      "parameter": {
+                        "type": "array",
+                        "title": "Parameters",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "parameter_depiction": {
+                              "description": "The short name of the parameter as it appears in the file metadata or in the datafile header", 
+                              "title": "Depiction", 
+                              "type": "string"
+                              },
+                            "parameter_name": {
+                              "description": "Long name of the parameter", 
+                              "title": "Parameter name", 
+                              "type": "string"
+                            },
+                            "parameter_unit": {
+                              "description": "Unit of the parameter", 
+                              "title": "Parameter unit",
+                              "type": "string"
+                            }, 
+                            "parameter_url": {
+                              "description": "Link to the description document of the parameter", 
+                              "title": "URL",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "description": "Parameter"
+                      },
+                      "spatialCoverage_levels": {
+                        "description": " Data levels (meter, hectoPascal, degree, sigma pressure levels, other) in vertical direction(+/-) for example 1500 m or 850 hPa", 
+                        "items": {
+                          "additionalProperties": false, 
+                          "properties": {
+                            "spatialCoverage_level": {
+                              "title": "Level",
+                              "type": "string"
+                            },
+                            "spatialCoverage_levelunit": {
+                              "description": "Unit of levels", 
+                              "enum": [
+                                "meter", 
+                                "hectoPascal",
+                                "degree",
+                                "sigma pressure levels (from toa to surface)",
+                                "other"
+                              ], 
+                              "title": "Level unit", 
+                              "type": "string"
+                            }
+                          }, 
+                          "required": [
+                            "spatialCoverage_level"
+                          ], 
+                          "type": "object"
+                        }, 
+                        "title": "Levels", 
+                        "type": "array", 
+                        "uniqueItems": true
+                      },
+                      "spatialCoverage_resolution": {
+                        "description": "Spatial resolution of data grid", 
+                        "title": "Resolution", 
+                        "type": "integer"
+                      }, 
+                      "supplementalinfo": {
+                        "description": "Supplemental information", 
+                        "title": "Supplemental information", 
+                        "type": "string"
+                      },  
+                      "topic": {
+                        "description": "INSPIRE topic category (see http://inspire.ec.europa.eu/metadata-codelist/TopicCategory)", 
+                        "enum": [
+                          "climatologyMeteorologyAtmosphere", 
+                          "oceans", 
+                          "society", 
+                          "economy", 
+                          "environment", 
+                          "transportation", 
+                          "geoscientificInformation",
+                          "space physics"
+                        ], 
+                        "title": "Topic category", 
+                        "type": "string"
+                      }
+                    }, 
+                    "required": [
+                      "topic"
+                    ], 
+                    "title": "FMI Metadata",
+                    "type": "object"
+                  }
+            ]
+        }
+    }
+}

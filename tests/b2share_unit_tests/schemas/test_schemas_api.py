@@ -442,7 +442,6 @@ def test_community_schema(app, flask_http_responses):
                 }
             }
         ]
-
         validation_schemas = [schema.build_json_schema()
                               for schema in community_schemas]
         for index in range(len(community_schemas)):

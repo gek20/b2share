@@ -60,3 +60,6 @@ webui/app/js/
 CICD.md
 wheels
 .vscode
+ci-docker/data/
+logs.*
+logs

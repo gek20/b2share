@@ -137,7 +137,7 @@ const Record = React.createClass({
         event.preventDefault();
         if (window._paq) {
             const metadata = this.props.record.get('metadata') || Map();
-            const doi = metadata.get('DOI').replace("http://doi.org/", "");
+            const doi = metadata.get('DOI').replace("https://doi.org/", "");
             window._paq.push(['trackEvent', 'b2share', event.type, doi]);
         }
     },
@@ -411,22 +411,23 @@ const Record = React.createClass({
     },
 
     renderCitations(doi) {
-        
+
         try {
-            const headers= {"Accept":"text/x-bibliography; style=apa"};
-            const url = doi.replace('http', 'https')
-            fetch(url, {headers})
-            .then(response => {
-                if(response.ok){
-                    this.setState({responsestatus: response.status, responseok: true})
-                    return response.text()
-                }
-                
-            }).then(text=>this.setState({data: text.replace(/<\/?i>/g, "")})
-            ).catch((error) => {
-                console.log(error + " from "+ url)
-                this.setState({responsestatus: 404, responseok: false})
-            })
+            const headers = { "Accept": "text/x-bibliography; style=apa" };
+            let url = doi
+            if (url.includes("https") == false) { url = doi.replace('http', 'https') }
+            fetch(url, { headers })
+                .then(response => {
+                    if (response.ok) {
+                        this.setState({ responsestatus: response.status, responseok: true })
+                        return response.text()
+                    }
+
+                }).then(text => this.setState({ data: text.replace(/<\/?i>/g, "") })
+                ).catch((error) => {
+                    console.log(error + " from " + url)
+                    this.setState({ responsestatus: 404, responseok: false })
+                })
         } catch (error) {
             console.log(error)
             this.setState({responsestatus: 0, responseok: false})
@@ -436,9 +437,10 @@ const Record = React.createClass({
             //This if is for the citationbox not to rendering anything before it has fetched something from the DOI.
         } else if(this.state.responseok == true){
             function onButtonClick() {
-                const headers= {"Accept":"application/x-bibtex"};
-                const url = doi.replace('http', 'https')
-                fetch(url, {headers}).then(response=>response.text()).then(text=>copyToClipboard(text));
+                const headers = { "Accept": "application/x-bibtex" };
+                let url = doi
+                if (url.includes("https") == false) { url = doi.replace('http', 'https') }
+                fetch(url, { headers }).then(response => response.text()).then(text => copyToClipboard(text));
             }
             return (
                 <div className="well">
@@ -485,7 +487,7 @@ const Record = React.createClass({
                         border : "1px solid transparent",
                         borderradius : "4px"
                     }}>
-                        The citation is not available at this moment.
+                        Citation is not available at this moment.
                     </li>
                 </div>
                 </div>
@@ -493,41 +495,93 @@ const Record = React.createClass({
             )
         }
     },
-    renderFileList(files, b2noteUrl, showDownloads) {
+
+    getToken() {
+        serverCache.getAccessToken(this.props.record.get('id'), (resp) => {
+            this.setState({ token: resp.jwt, showLinkCreation: true })
+        })
+    },
+    //<FileToken buckets={this.props.buckets} token={this.state.token} zipFile={true} /> </div>
+    getUrl(bucket, name, token) {
+        return apiUrls.tempFileAccessLink(bucket, name, token)
+    },
+    renderZipFile(buckets, token) {
+        return (
+            <div className="file">
+                <div className="row">
+                    <div className="col-sm-8" onClick={e => this.setState({ open: !this.state.open })}>
+                        <span className={"glyphicon glyphicon-file"}
+                            style={{ marginLeft: '1.5em', fontSize: 10 }} aria-hidden="true" />
+                        <a style={{ display: 'inline-block', marginLeft: '0.5em' }}
+                            href={this.getUrl(buckets[0], "files.zip", token) + "&all=1"}>{"Files.zip"}</a>
+                    </div>
+                    <div className="col-sm-1" style={{padding: '0px'}}>{}</div>
+                    <div className="col-sm-3">
+                        <div className="btn-group" role="group" aria-label="...">
+                            {this.props.b2noteWidget}
+                            {!token ? false : <FileToken buckets={buckets} token={token} zipFile={true} />}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    },
+    renderFileList(files, showDownloads) {
         const openAccess = this.props.record.getIn(['metadata', 'open_access']);
         const showAccessRequest = (!openAccess && !isRecordOwner(this.props.record));
-
+        const showLinkCreation = !openAccess && isRecordOwner(this.props.record) && (files && files.count && files.count());
         let fileComponent = false;
-        if (!(files && files.count && files.count())) {
-            fileComponent = <div>No files available.</div>;
-        } else {
-            const fileRecordRowFn = f => {
-                let b2noteWidget = false;
-                if (b2noteUrl) {
-                    b2noteWidget = <B2NoteWidget file={f} record={this.props.record} notes={this.state.files_notes} showB2NoteWindow={this.showB2NoteWindow} b2noteUrl={b2noteUrl} smallButton={true} style={{display: 'inline-block'}}/>;
-                }
-                return <FileRecordRow key={f.get('key')} file={f} b2noteWidget={b2noteWidget} showDownloads={showDownloads} catchMatomoEvent={this.catchMatomoEvent} />
-            }
-            fileComponent =
-                <div className='filelist'>
-                    <FileRecordHeader/>
-                    <div className='files'>
-                    { files.map(fileRecordRowFn) }
-                    </div>
-                </div>;
+        if (files && files.count && files.count()) {
+            const buckets = files.map(f => { return f.get('bucket') })
+            this.props.buckets = Array.from(new Set(Object.keys(buckets['_tail']['array']).map(function (key) { return buckets['_tail']['array'][key]; })))
+        }
+        else {
+            this.props.buckets = []
+        }
+
+        const fileRecordRowFn = f => {
+            let b2noteWidget = false;
+            return <FileRecordRow key={f.get('key')} file={f} b2noteWidget={b2noteWidget} showDownloads={showDownloads} catchMatomoEvent={this.catchMatomoEvent} token={this.state.token} />
         }
         return (
             <div className="well">
                 <div className="row">
                     <h3 className="col-sm-9">
-                        { 'Files' }
+                        {'Files'}
                     </h3>
                 </div>
-                { fileComponent }
-                { showAccessRequest ?
+                {<div className='filelist'>
+                    <FileRecordHeader />
+                    <div className='files'>
+                        {!(files && files.count && files.count()) ? fileComponent = <div>No files available.</div> : files.map(fileRecordRowFn)}
+                        {/* {this.state.token && showLinkCreation ?
+                            this.renderZipFile(this.props.buckets, this.state.token) : false} */}
+                    </div>
+                </div>}
+
+                {showAccessRequest ?
                     <Link to={`/records/${this.props.record.get('id')}/accessrequest`}>
                         Request data access
-                    </Link> : false }
+                    </Link> : false}
+
+                {/* {this.state.token && showLinkCreation ?
+                            <div> {"Files.zip"}
+                                <FileToken buckets={this.props.buckets} token={this.state.token} zipFile={true} />  : false} */}
+
+
+                {this.state.token ? showLinkCreation && "Token already generated, click to the red button next to the file to copy it." : showLinkCreation &&
+                    <button onClick={() => {
+                        const confirmBox = window.confirm(
+                            "Do you really want to create the access token for the files?\nThe token will expire in 30 days. \nIt is not possible to revoke the token before that date."
+                        )
+                        if (confirmBox === true) {
+                            this.getToken()
+                        }
+                    }
+                    }>Get limited access token</button>
+                }
+
             </div>
         );
     },
@@ -596,7 +650,7 @@ const Record = React.createClass({
                 value = (inner = languages.items.find(l => l.id == value)) ? inner.name : value;
             }
             // maintain root schema v0 compatibility
-            inner = <span>{ renderScalar(schema, value) }</span>;
+            inner = <span>{renderScalar(schema, value)}</span>;
         } else if (type === 'array') {
             inner = (
                 <ul className="list-unstyled">
@@ -611,7 +665,7 @@ const Record = React.createClass({
 
             inner = (
                 <ul className="list-unstyled">
-                    { schema.get('properties').entrySeq().map(([pid, pschema]) => this.renderField(pid, pschema, value.get(pid), pid == mainid ? vtype : null)) }
+                    {schema.get('properties').entrySeq().map(([pid, pschema]) => this.renderField(pid, pschema, value.get(pid), pid == mainid ? vtype : null))}
                 </ul>
             );
         } else {
@@ -620,7 +674,7 @@ const Record = React.createClass({
 
         return (
             <li key={id} className="row">
-                { !title ? false :
+                {!title ? false :
                     <div className="col-sm-4">
                         <label>{title}</label>
                     </div>
@@ -663,7 +717,7 @@ const Record = React.createClass({
             <div key={schemaID||"_"} className={"well " + (schemaID ? "block" : "")}>
                 <div className="row">
                     <h3 className="col-sm-9">
-                        { schemaID ? schema.get('title') : 'Basic metadata' }
+                        {schemaID ? schema.get('title') : 'Basic metadata'}
                     </h3>
                     { !schemaID ? false :
                         <span style={{float: 'right'}}>
@@ -676,7 +730,7 @@ const Record = React.createClass({
                 </div>
                 <div className="row">
                     <ul className="col-sm-12 list-unstyled">
-                        { majorFields }
+                        {majorFields}
                     </ul>
                 </div>
                 <div className="row">
@@ -772,7 +826,7 @@ const Record = React.createClass({
                         </div>
 
                         <div className="col-lg-6">
-                            { this.renderFieldBlock(null, rootSchema, this.fixedFields) }
+                            {this.renderFieldBlock(null, rootSchema, this.fixedFields)}
 
                             { !blockSchemas ? false :
                                 blockSchemas.map(([id, blockSchema]) =>

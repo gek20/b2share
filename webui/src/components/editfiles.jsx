@@ -819,8 +819,8 @@ export const PersistentIdentifier = React.createClass({
     },
 
     KNOWN_PREFIXES: [
-        "http://hdl.handle.net/",
-        "http://doi.org/"
+        "https://hdl.handle.net/",
+        "https://doi.org/"
     ],
 
     render: function() {

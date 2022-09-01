@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of EUDAT B2Share.
-# Copyright (C) 2016 CERN.
+# Copyright (C) 2016 University of Tuebingen, CERN.
+# Copyright (C) 2015 University of Tuebingen.
 #
 # B2Share is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,21 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with B2Share; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
-#
-# In applying this license, CERN does not
-# waive the privileges and immunities granted to it by virtue of its status
-# as an Intergovernmental Organization or submit itself to any jurisdiction.
-
-"""B2share records extension"""
-
-from __future__ import absolute_import, print_function
-
-from .cli import files as files_cmd
-from .views import object_view
 
 
-class B2ShareFiles(object):
-    """B2Share Files extension."""
+from .views import create_blueprint
+
+
+class B2ShareTempFileAccessTokenResource(object):
+    """B2Share Records extension."""
 
     def __init__(self, app=None):
         """Extension initialization."""
@@ -40,15 +33,9 @@ class B2ShareFiles(object):
     def init_app(self, app):
         """Flask application initialization."""
         self.init_config(app)
-        app.cli.add_command(files_cmd)
-        app.extensions['b2share-files-rest'] = self
-        # don't register blueprint instead of replace the object_view
-        # replace_files_rest_object_view()
-        #app.register_blueprint(blueprint_b2share_files_rest)
-
-        @app.before_first_request
-        def replace_files_rest_object_view():
-            app.view_functions['invenio_files_rest.object_api'] = object_view
+        app.extensions['b2share_records_temporary_access'] = self
+        endpoints = app.config['B2SHARE_RECORDS_REST_ENDPOINTS']
+        app.register_blueprint(create_blueprint(endpoints))
 
     def init_config(self, app):
         """Initialize configuration."""

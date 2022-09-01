@@ -5,18 +5,19 @@ import { Link } from 'react-router'
 import { Map, List } from 'immutable';
 import moment from 'moment';
 import { timestamp } from '../data/ajax';
-import { serverCache, notifications, browser, Error } from '../data/server';
+import { serverCache, notifications, browser, Error, apiUrls } from '../data/server';
 import { keys, humanSize } from '../data/misc';
 import { ReplaceAnimate } from './animate.jsx';
 import { ImplodedList } from './common.jsx';
 import { Wait, Err } from './waiting.jsx';
-import { FileRecordHeader, FileRecordRow, PersistentIdentifier, copyToClipboard} from './editfiles.jsx';
+import { FileRecordHeader, FileRecordRow, PersistentIdentifier, copyToClipboard } from './editfiles.jsx';
 import { Versions } from './versions.jsx';
 import { getSchemaOrderedMajorAndMinorFields } from './schema.jsx';
 import PiwikTracker from 'piwik-react-router';
+import { TwitterShareButton, TwitterIcon, FacebookShareButton, FacebookIcon} from 'react-share';
 import { Card } from 'react-bootstrap';
 import { ExternalUrlsRec } from './externalurls.jsx';
-import { TwitterShareButton, TwitterIcon, FacebookShareButton, FacebookIcon} from 'react-share';
+import FileToken from './filetoken.jsx'
 const PT = React.PropTypes;
 
 
@@ -34,17 +35,17 @@ export const RecordRoute = React.createClass({
         const record = this.getRecordOrDraft();
         const b2noteUrl = serverCache.getInfo().get('b2note_url', '');
         if (!record) {
-            return <Wait/>;
+            return <Wait />;
         }
         if (record instanceof Error) {
-            return <Err err={record}/>;
+            return <Err err={record} />;
         }
         const [rootSchema, blockSchemas] = serverCache.getRecordSchemas(record);
         const community = serverCache.getCommunity(record.getIn(['metadata', 'community']));
 
         return (
             <ReplaceAnimate>
-                <Record record={record} community={community} rootSchema={rootSchema} blockSchemas={blockSchemas} b2noteUrl={b2noteUrl}/>
+                <Record record={record} community={community} rootSchema={rootSchema} blockSchemas={blockSchemas} b2noteUrl={b2noteUrl} />
             </ReplaceAnimate>
         );
     }
@@ -101,16 +102,16 @@ const B2NoteWidget = React.createClass({
         }
 
         return (
-            <form id="b2note_form_" action={this.props.b2noteUrl + '/widget'} className="btn btn-xs" method="post" target="b2note_iframe" style={{padding: '0px', border: '0px'}} onSubmit={this.handleSubmit}>
-                <input type="hidden" name="recordurl_tofeed" value={record_url} className="field left" readOnly="readonly"/>
-                <input type="hidden" name="pid_tofeed" value={pid} className="field left" readOnly="readonly"/>
-                <input type="hidden" name="subject_tofeed" value={object_url} className="field left" readOnly="readonly"/>
-                <input type="hidden" name="keywords_tofeed" value={record.metadata.keywords||""} className="field left" readOnly="readonly"/>
-                <input type="hidden" name="pidName_tofeed" value={title} className="field left" readOnly="readonly"/>
-                <input type="hidden" name="sourceName_tofeed" value={source} className="field left" readOnly="readonly"/>
-                { this.props.smallButton
-                    ? <button type="submit" style={{display: 'inline-block'}} className={"btn btn-xs "+this.props.btnClass} title={ pid ? texts.edit : texts.disabled } disabled={ pid ? "" : "disabled"}><i className="fa fa-edit"/>&nbsp;<Badge>{ notes.length }</Badge></button>
-                    : <button type="submit" className={"btn "+this.props.btnClass} title={ pid ? texts.edit : texts.disabled } disabled={ pid ? "" : "disabled"}><i className="fa fa-edit"/>&nbsp;Annotate <Badge>{ notes.length }</Badge></button>
+            <form id="b2note_form_" action={this.props.b2noteUrl + '/widget'} className="btn btn-xs" method="post" target="b2note_iframe" style={{ padding: '0px', border: '0px' }} onSubmit={this.handleSubmit}>
+                <input type="hidden" name="recordurl_tofeed" value={record_url} className="field left" readOnly="readonly" />
+                <input type="hidden" name="pid_tofeed" value={pid} className="field left" readOnly="readonly" />
+                <input type="hidden" name="subject_tofeed" value={object_url} className="field left" readOnly="readonly" />
+                <input type="hidden" name="keywords_tofeed" value={record.metadata.keywords || ""} className="field left" readOnly="readonly" />
+                <input type="hidden" name="pidName_tofeed" value={title} className="field left" readOnly="readonly" />
+                <input type="hidden" name="sourceName_tofeed" value={source} className="field left" readOnly="readonly" />
+                {this.props.smallButton
+                    ? <button type="submit" style={{ display: 'inline-block' }} className={"btn btn-xs " + this.props.btnClass} title={pid ? texts.edit : texts.disabled} disabled={pid ? "" : "disabled"}><i className="fa fa-edit" />&nbsp;<Badge>{notes.length}</Badge></button>
+                    : <button type="submit" className={"btn " + this.props.btnClass} title={pid ? texts.edit : texts.disabled} disabled={pid ? "" : "disabled"}><i className="fa fa-edit" />&nbsp;Annotate <Badge>{notes.length}</Badge></button>
                 }
             </form>
         );
@@ -126,7 +127,9 @@ const Record = React.createClass({
             showB2NoteWindow: false,
             record_notes: [],
             files_notes: [],
-            b2noteUrl: this.props.b2noteUrl
+            b2noteUrl: this.props.b2noteUrl,
+            token: null,
+            buckets: []
         }
 
         return state;
@@ -152,20 +155,20 @@ const Record = React.createClass({
         var url = host + '/api/annotations?type[]=semantic&type[]=keyword&type[]=comment&target-id[]=' + pid_parameters + '&target-source[]=' + source_parameters;
         console.log('--- B2NOTE get:', timestamp(), `${pids}, ${sources}`);
         fetch(url)
-          .then(function(response) {
-            return response.json();
-          }).then(function(json) {
-            console.log('  > B2NOTE ret:', timestamp(), json);
-            self.setState({
-                [target]: json
+            .then(function (response) {
+                return response.json();
+            }).then(function (json) {
+                console.log('  > B2NOTE ret:', timestamp(), json);
+                self.setState({
+                    [target]: json
+                });
+            }).catch(function (ex) {
+                console.log('B2NOTE request failed: ' + ex)
             });
-          }).catch(function(ex) {
-            console.log('B2NOTE request failed: ' + ex)
-          });
     },
 
     showB2NoteWindow() {
-        this.setState({showB2NoteWindow: true})
+        this.setState({ showB2NoteWindow: true })
     },
 
     componentDidMount() {
@@ -238,20 +241,20 @@ const Record = React.createClass({
         return field.has('name_identifiers') &&
             field
                 .get('name_identifiers', [])
-                .filter((v, k) => v.get('scheme').toLowerCase() === 'orcid' && v.get('name_identifier') > '' )
-                .map((v, k) => <a href={v.get('scheme_uri') + '/' + v.get('name_identifier') } key={v.get('name_identifier')} target="_blank"><img className="orcid" src="/img/orcid.png"/></a> );
+                .filter((v, k) => v.get('scheme').toLowerCase() === 'orcid' && v.get('name_identifier') > '')
+                .map((v, k) => <a href={v.get('scheme_uri') + '/' + v.get('name_identifier')} key={v.get('name_identifier')} target="_blank"><img className="orcid" src="/img/orcid.png" /></a>);
     },
 
     // ensures root schema v0 and v1 compatibility
-    renderLink(field, key, className="") {
+    renderLink(field, key, className = "") {
         if (field.size && field.has(key)) {
             var v = field.get(key);
             return <span>
-                    <Link to={{pathname:'/records', query:{q:v}}} className={className} key={v}>{v}</Link>
-                    {this.renderOrcidLink(field)}
-                </span>
+                <Link to={{ pathname: '/records', query: { q: v } }} className={className} key={v}>{v}</Link>
+                {this.renderOrcidLink(field)}
+            </span>
         } else {
-            return <Link to={{pathname:'/records', query:{q:field}}} className={className} key={field}>{field}</Link>
+            return <Link to={{ pathname: '/records', query: { q: field } }} className={className} key={field}>{field}</Link>
         }
     },
 
@@ -264,8 +267,8 @@ const Record = React.createClass({
         }
         function renderCreators(creators) {
             return (
-                <p><span style={{color:'black'}}> by </span>
-                <ImplodedList data={creators.map((x) => self.renderLink(x, 'creator_name', 'creator'))} />;</p>
+                <p><span style={{ color: 'black' }}> by </span>
+                    <ImplodedList data={creators.map((x) => self.renderLink(x, 'creator_name', 'creator'))} />;</p>
             )
         }
         function renderDates(record) {
@@ -274,11 +277,11 @@ const Record = React.createClass({
             return (
                 <div className="dates">
                     <p>{created}</p>
-                    { created != updated
+                    {created != updated
                         ? <p>
                             <span>Last updated at </span>{updated}
-                          </p>
-                        : false }
+                        </p>
+                        : false}
                 </div>
             );
         }
@@ -287,24 +290,24 @@ const Record = React.createClass({
             const descriptionType = (dt == 'Other') ? 'Description' : dt;
             return (
                 <p className="description" key={i}>
-                    <span style={{fontWeight:'bold'}}>{descriptionType}: </span>
-                    <ImplodedList data={description.get('description').split('\n')} delim='<br/>'/>
+                    <span style={{ fontWeight: 'bold' }}>{descriptionType}: </span>
+                    <ImplodedList data={description.get('description').split('\n')} delim='<br/>' />
                 </p>
             );
         }
         function renderSmallCommunity(community) {
             return !community ? false :
-                (community instanceof Error) ? <Err err={community}/> :
-                (
-                    <div key={community.get('id')}>
-                        <Link to={"/communities/"+community.get('name')}>
-                            <div className="community-small passive" title={community.get('description')}>
-                                <p className="name">{community.get('name')}</p>
-                                <img className="logo" src={community.get('logo')}/>
-                            </div>
-                        </Link>
-                    </div>
-                );
+                (community instanceof Error) ? <Err err={community} /> :
+                    (
+                        <div key={community.get('id')}>
+                            <Link to={"/communities/" + community.get('name')}>
+                                <div className="community-small passive" title={community.get('description')}>
+                                    <p className="name">{community.get('name')}</p>
+                                    <img className="logo" src={community.get('logo')} />
+                                </div>
+                            </Link>
+                        </div>
+                    );
         }
 
         function testget(map, key) {
@@ -325,42 +328,42 @@ const Record = React.createClass({
                 <Versions isDraft={state == 'draft'} recordID={record.get('id')} versions={record.get('versions')} />
                 <div className="row">
                     <div className="col-sm-12">
-                        { metadata.get('titles').map(renderTitle)}
-                        { state != 'draft' ? false :
-                        <h4 style={{color: '#CCC'}}>(draft preview)</h4>
+                        {metadata.get('titles').map(renderTitle)}
+                        {state != 'draft' ? false :
+                            <h4 style={{ color: '#CCC' }}>(draft preview)</h4>
                         }
                     </div>
                 </div>
 
                 <div className="row">
                     <div className="col-sm-8 col-md-10">
-                        { creators && renderCreators(creators) }
+                        {creators && renderCreators(creators)}
 
-                        { renderDates(record) }
+                        {renderDates(record)}
 
-                        { descriptions && descriptions.map(renderDescription) }
+                        {descriptions && descriptions.map(renderDescription)}
 
-                        { disciplines &&
+                        {disciplines &&
                             <p className="discipline">
-                                <span style={{fontWeight:'bold'}}>Disciplines: </span>
+                                <span style={{ fontWeight: 'bold' }}>Disciplines: </span>
                                 <ImplodedList data={disciplines.map((x) => self.renderLink(x, 'discipline_name'))} />
                             </p>
                         }
 
-                        { keywords &&
+                        {keywords &&
                             <p className="keywords">
-                                <span style={{fontWeight:'bold'}}>Keywords: </span>
+                                <span style={{ fontWeight: 'bold' }}>Keywords: </span>
                                 <ImplodedList data={keywords.map((x) => self.renderLink(x, 'keyword'))} />;
                             </p>
                         }
 
-                        { doi &&
+                        {doi &&
                             <p className="pid">
                                 <span>DOI: </span>
-                                <PersistentIdentifier pid={doi} doi={true}/>
+                                <PersistentIdentifier pid={doi} doi={true} />
                             </p>
                         }
-                        { pid &&
+                        {pid &&
                             <p className="pid">
                                 <span>PID: </span>
                                 <PersistentIdentifier pid={pid} />
@@ -369,7 +372,7 @@ const Record = React.createClass({
                     </div>
 
                     <div className="col-sm-4 col-md-2">
-                        { renderSmallCommunity(community) }
+                        {renderSmallCommunity(community)}
                     </div>
                 </div>
             </div>
@@ -411,7 +414,7 @@ const Record = React.createClass({
     },
 
     renderCitations(doi) {
-
+        
         try {
             const headers = { "Accept": "text/x-bibliography; style=apa" };
             let url = doi
@@ -430,12 +433,12 @@ const Record = React.createClass({
                 })
         } catch (error) {
             console.log(error)
-            this.setState({responsestatus: 0, responseok: false})
+            this.setState({ responsestatus: 0, responseok: false })
         }
 
-        if(this.state.responsestatus == null){
-            //This if is for the citationbox not to rendering anything before it has fetched something from the DOI.
-        } else if(this.state.responseok == true){
+        if (this.state.responsestatus == null) {
+            //This if is for the cationbox not to rendering anything before it has fetched something from the DOI.
+        } else if (this.state.responseok == true) {
             function onButtonClick() {
                 const headers = { "Accept": "application/x-bibtex" };
                 let url = doi
@@ -473,7 +476,7 @@ const Record = React.createClass({
                 </div>
             )
         } else {
-            return(
+            return (
                 <div className="well">
                 <div>
                     <li style={{
@@ -550,6 +553,7 @@ const Record = React.createClass({
                     <h3 className="col-sm-9">
                         {'Files'}
                     </h3>
+
                 </div>
                 {<div className='filelist'>
                     <FileRecordHeader />
@@ -583,10 +587,13 @@ const Record = React.createClass({
                 }
 
             </div>
+
+
         );
+
     },
 
-    renderField(id, schema, value, vtype=null) {
+    renderField(id, schema, value, vtype = null) {
         function isValidUrl(value) {
             try {
                 var url = new URL(value);
@@ -611,11 +618,11 @@ const Record = React.createClass({
             } else if (type === 'string' && schema.get('format') === 'date-time-range') {
                 value = moment(value).format("LLLL");
             } else if (type === 'boolean') {
-                const markClass = "glyphicon glyphicon-" + (value ? "ok":"remove");
+                const markClass = "glyphicon glyphicon-" + (value ? "ok" : "remove");
                 return (
                     <label>
-                        <span className="metadata-boolean">{value ? "True":"False"}</span>
-                        <span className={markClass} aria-hidden="true"/>
+                        <span className="metadata-boolean">{value ? "True" : "False"}</span>
+                        <span className={markClass} aria-hidden="true" />
                     </label>
                 );
             } else if (vtype) {
@@ -654,7 +661,7 @@ const Record = React.createClass({
         } else if (type === 'array') {
             inner = (
                 <ul className="list-unstyled">
-                    { value.map((v,i) => this.renderField(`#${i}`, schema.get('items'), v)) }
+                    {value.map((v, i) => this.renderField(`#${i}`, schema.get('items'), v))}
                 </ul>
             );
         } else if (type === 'object') {
@@ -681,15 +688,15 @@ const Record = React.createClass({
                 }
                 <div className={
                     (title ? "col-sm-8" : "col-sm-12") + " " + (type === 'object' ? "metadata-object" : "metadata")}>
-                     {inner} </div>
+                    {inner} </div>
             </li>
         );
     },
 
 
-    renderFieldBlock(schemaID, schema, excludeFields=[]) {
+    renderFieldBlock(schemaID, schema, excludeFields = []) {
         if (!schema) {
-            return <Wait key={schemaID}/>;
+            return <Wait key={schemaID} />;
         }
 
         const [majors, minors] = getSchemaOrderedMajorAndMinorFields(schema);
@@ -714,16 +721,16 @@ const Record = React.createClass({
         const minorFields = minors.entrySeq().map(renderBigField.bind(this, excludeFields));
 
         return (
-            <div key={schemaID||"_"} className={"well " + (schemaID ? "block" : "")}>
+            <div key={schemaID || "_"} className={"well " + (schemaID ? "block" : "")}>
                 <div className="row">
                     <h3 className="col-sm-9">
                         {schemaID ? schema.get('title') : 'Basic metadata'}
                     </h3>
-                    { !schemaID ? false :
-                        <span style={{float: 'right'}}>
+                    {!schemaID ? false :
+                        <span style={{ float: 'right' }}>
                             <a className="btn btn-xs btn-default" onClick={() => copyToClipboard(schemaID)}
-                               title="Copy community block schema identifier used for this record">
-                                <i className="fa fa-clipboard"/>
+                                title="Copy community block schema identifier used for this record">
+                                <i className="fa fa-clipboard" />
                             </a>
                         </span>
                     }
@@ -735,7 +742,7 @@ const Record = React.createClass({
                 </div>
                 <div className="row">
                     <ul className="col-sm-12 list-unstyled">
-                        { minorFields }
+                        {minorFields}
                     </ul>
                 </div>
             </div>
@@ -749,13 +756,13 @@ const Record = React.createClass({
         const b2noteUrl = this.props.b2noteUrl;
 
         if (!record || !rootSchema) {
-            return <Wait/>;
+            return <Wait />;
         }
 
         const recordID = record.get('id');
         const files = record.get('files') || record.getIn(['metadata', '_files']);
         const isLatestVersion = !record.has('versions') || recordID == record.getIn(['versions', 0, 'id']);
-        function onNewVersion (e) {
+        function onNewVersion(e) {
             e.preventDefault();
             serverCache.createRecordVersion(record, newRecordID => browser.gotoEditRecord(newRecordID));
         }
@@ -771,7 +778,7 @@ const Record = React.createClass({
                         </div>
                         {this.props.b2noteUrl ?
                             <div className={"well b2note " + (!this.state.showB2NoteWindow ? "hidden" : "")}>
-                                <button type="button" className="close" aria-label="Close" onClick={e => this.setState({showB2NoteWindow:false})}>
+                                <button type="button" className="close" aria-label="Close" onClick={e => this.setState({ showB2NoteWindow: false })}>
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                                 <iframe id="b2note_iframe" name="b2note_iframe"
@@ -812,15 +819,15 @@ const Record = React.createClass({
                                         </style>
                                         <div class="center-div"><div class="loader"></div></div>`
                                     }
-                                    className="frame"/>
+                                    className="frame" />
                             </div> : false
                         }
                     </div>
                     <div className="row">
                         <div className="col-lg-6">
                             {doi && this.renderCitations(doi)}
-                            { this.renderFileList(files, this.props.b2noteUrl, true) }
-                            { blockSchemas &&
+                            {this.renderFileList(files, this.props.b2noteUrl, true)}
+                            {blockSchemas &&
                                 <ExternalUrlsRec urls={this.props.record.getIn(['metadata', 'community_specific', blockSchemas[0][0], 'external_url'])} />
                             }
                         </div>
@@ -828,29 +835,29 @@ const Record = React.createClass({
                         <div className="col-lg-6">
                             {this.renderFieldBlock(null, rootSchema, this.fixedFields)}
 
-                            { !blockSchemas ? false :
+                            {!blockSchemas ? false :
                                 blockSchemas.map(([id, blockSchema]) =>
-                                    this.renderFieldBlock(id, (blockSchema||Map()).get('json_schema'), ['external_url'])) }
+                                    this.renderFieldBlock(id, (blockSchema || Map()).get('json_schema'), ['external_url']))}
                         </div>
                     </div>
 
                     <div className="row">
                         <div className="col-lg-12 bottom-buttons">
-                            { this.props.b2noteUrl ?
-                                <B2NoteWidget record={record} btnClass={"btn-warning"} showB2NoteWindow={this.showB2NoteWindow} notes={this.state.record_notes} b2noteUrl={this.props.b2noteUrl} b2noteCount={this.state.record_notes || {}}/>
+                            {this.props.b2noteUrl ?
+                                <B2NoteWidget record={record} btnClass={"btn-warning"} showB2NoteWindow={this.showB2NoteWindow} notes={this.state.record_notes} b2noteUrl={this.props.b2noteUrl} b2noteCount={this.state.record_notes || {}} />
                                 : false
                             }
-                            { canEditRecord(record) ?
-                                <Link to={`/records/${recordID}/edit`} className="btn btn-warning" style={{margin: '0 0.5em'}}><i className="fa fa-pencil"/>&nbsp;
-                                    { state == 'draft' ? 'Edit draft metadata' : 'Edit metadata' }</Link>
+                            {canEditRecord(record) ?
+                                <Link to={`/records/${recordID}/edit`} className="btn btn-warning" style={{ margin: '0 0.5em' }}><i className="fa fa-pencil" />&nbsp;
+                                    {state == 'draft' ? 'Edit draft metadata' : 'Edit metadata'}</Link>
                                 : false
                             }
-                            { isRecordOwner(record) && isLatestVersion ?
-                                <a href='#' onClick={onNewVersion} className="btn btn-warning"><i className="fa fa-plus"/>&nbsp;
+                            {isRecordOwner(record) && isLatestVersion ?
+                                <a href='#' onClick={onNewVersion} className="btn btn-warning"><i className="fa fa-plus" />&nbsp;
                                     Create New Version</a>
                                 : false
                             }
-                            <Link to={`/records/${recordID}/abuse`} className="btn btn-default abuse"><i className="glyphicon glyphicon-exclamation-sign"/> Report Abuse</Link>
+                            <Link to={`/records/${recordID}/abuse`} className="btn btn-default abuse"><i className="glyphicon glyphicon-exclamation-sign" /> Report Abuse</Link>
                         </div>
                     </div>
                 </div>

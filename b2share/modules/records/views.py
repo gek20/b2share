@@ -22,6 +22,7 @@
 # as an Intergovernmental Organization or submit itself to any jurisdiction.
 
 
+
 import uuid
 import re
 from functools import partial, wraps
@@ -41,7 +42,6 @@ from invenio_rest.errors import RESTValidationError
 from invenio_search import RecordsSearch
 from jsonschema.exceptions import ValidationError
 from invenio_records.models import RecordMetadata
-from invenio_records_files.api import RecordsBuckets
 from invenio_records_rest.views import (pass_record,
                                         RecordsListResource, RecordResource,
                                         RecordsListOptionsResource,
@@ -57,16 +57,16 @@ from flask_mail import Message
 from invenio_mail.tasks import send_email
 from invenio_rest import ContentNegotiatedMethodView
 from invenio_accounts.models import User
-
 from b2share.modules.records.providers import RecordUUIDProvider
 from b2share.modules.deposit.serializers import json_v1_response as \
     deposit_serializer
 from b2share.modules.deposit.api import Deposit, copy_data_from_previous
 from b2share.modules.deposit.errors import RecordNotFoundVersioningError, \
     IncorrectRecordVersioningError
-from b2share.modules.records.permissions import DeleteRecordPermission
 from jsonpatch import JsonPatchException, JsonPointerException
 from invenio_pidstore.providers.datacite import DataCiteProvider
+from b2share.modules.records.permissions import DeleteRecordPermission, \
+    UpdateRecordPermission
 
 
 # duplicated from invenio-records-rest because we need
@@ -258,11 +258,14 @@ def create_url_rules(endpoint, list_route=None, item_route=None,
         RequestAccessResource.view_name.format(endpoint),
         resolver=resolver)
 
+   
+
     views = [
         dict(rule=list_route, view_func=list_view),
         dict(rule=item_route, view_func=item_view),
         dict(rule=item_route + '/abuse', view_func=abuse_view),
         dict(rule=item_route + '/accessrequests', view_func=access_view),
+        #dict(rule=item_route + '/tempfileaccess', view_func=temp_fileccess_view),
         # Special case for versioning as the parent PID is redirected.
         dict(rule='/records/<pid_value>/versions', view_func=versions_view),
     ]
@@ -649,3 +652,6 @@ class RequestAccessResource(ContentNegotiatedMethodView):
         return self.make_response({
             'message': 'An email was sent to the record owner.'
         })
+
+
+

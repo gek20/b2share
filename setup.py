@@ -189,6 +189,7 @@ setup(
             'b2share_access = b2share.modules.access:B2ShareAccess',
             'b2share_oaiserver = b2share.modules.oaiserver:B2ShareOAIServer',
             'b2share_upgrade = b2share.modules.upgrade:B2ShareUpgrade',
+            'b2share_temporary_access_token = b2share.modules.management.temporary_access:B2ShareTempFileAccessTokenResource',
             'b2share_metax = b2share.modules.metax:B2ShareMetax',
             # enable OAuthClient on the API
             'invenio_oauthclient = invenio_oauthclient:InvenioOAuthClient',

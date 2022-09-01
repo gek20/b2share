@@ -9,7 +9,7 @@ const urlRoot = ""; // window.location.origin;
 
 export const loginURL = `${urlRoot}/api/oauth/login/cscaai`;
 
-const apiUrls = {
+export const apiUrls = {
     root()                            { return `${urlRoot}/api/` },
 
     user()                            { return `${urlRoot}/api/user` },
@@ -28,7 +28,8 @@ const apiUrls = {
 
     abuse(id)                         { return `${urlRoot}/api/records/${id}/abuse` },
     accessrequests(id)                { return `${urlRoot}/api/records/${id}/accessrequests` },
-
+    tempFileAccess(id)                { return `${urlRoot}/api/records/${id}/tempfileaccess`},
+    tempFileAccessLink(bucket_id,file_name,token) { return `${urlRoot}/api/files/${bucket_id}/${file_name}?jwt=${token}` },
     communities()                     { return `${urlRoot}/api/communities/` },
     community(id)                     { return `${urlRoot}/api/communities/${id}` },
     communitySchema(cid, version)     { return `${urlRoot}/api/communities/${cid}/schemas/${version}` },
@@ -915,6 +916,15 @@ class ServerCache {
                 successFn(response);
             },
         });
+    }
+
+    getAccessToken(record_id, successFn) {
+        ajaxGet({
+            url: apiUrls.tempFileAccess(record_id),
+            successFn: (response) => {
+                successFn(response)
+            }
+        })
     }
 };
 

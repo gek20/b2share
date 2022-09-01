@@ -8,6 +8,7 @@ import { pairs, humanSize } from '../data/misc';
 import { Wait, Err } from './waiting.jsx';
 import { ReplaceAnimate } from './animate.jsx';
 import { ExternalUrls } from './externalurls.jsx';
+import FileToken from './filetoken.jsx'
 
 const PT = React.PropTypes;
 
@@ -688,6 +689,7 @@ export const FileRecordRow = React.createClass({
         remove: PT.func,
         b2noteWidget: PT.oneOfType([PT.object, PT.bool]),
         catchMatomoEvent: PT.func,
+        token: PT.object.isRequired,
     },
 
     getInitialState() {
@@ -702,15 +704,13 @@ export const FileRecordRow = React.createClass({
         alert(msg + ' copied to clipboard!');
     },
 
-
-
-
+ 
     render() {
         let file = this.props.file;
+        let token = this.props.token;
         file = file.toJS ? file.toJS() : file;
         const allowDetails = file.checksum || file.ePIC_PID;
         const stateMark = allowDetails ? (this.state.open ? "down":"right") : "";
-
         return (
             <div className="file">
                 <div className="row">
@@ -757,6 +757,7 @@ export const FileRecordRow = React.createClass({
                             <button type="button" className="btn btn-default btn-xs remove" onClick={()=>this.setState({remove:true})} title="Delete this file">
                                 <i className="glyphicon glyphicon-remove"/>
                             </button> }
+                            { !token ? false : <FileToken file={file} token={token} zipFile={false}/> }
                         </div>
                     </div>
                 </div>

@@ -119,7 +119,7 @@ def subtest_deposit(app, test_communities, allowed_user, other_user,
             h = file_res.headers
             # content type is changed from text/html to text/plain by
             # invenio-files-rest in order to avoid XSS attacks.
-            assert h['Content-Type'] == 'text/plain; charset=utf-8'
+            assert h['Content-Type'] == 'application/force-download'
             # XSS prevention
             assert h['Content-Security-Policy'] == 'default-src \'none\';'
             assert h['X-Content-Type-Options'] == 'nosniff'

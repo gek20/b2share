@@ -35,6 +35,7 @@ cookiecutter==1.4.0       # via invenio-base
 cryptography==1.5.2       # via invenio-accounts, invenio-oauthclient, sqlalchemy-utils
 datacite==1.1.1
 dcxml==0.1.0
+debugpy
 decorator==4.0.10         # via validators
 dictdiffer==0.6.0         # via invenio-deposit
 dojson==1.3.2
@@ -121,7 +122,7 @@ poyo==0.4.0               # via cookiecutter
 psycopg2==2.7.1
 pyasn1==0.1.9             # via cryptography
 pycparser==2.17           # via cffi
-pyjwt==1.5.0              # via invenio-accounts
+pyjwt==1.7.1              # via invenio-accounts, invenio_files_rest
 pypeg2==2.15.2            # via invenio-query-parser, invenio-search
 python-dateutil==2.6.1    # via arrow, elasticsearch-dsl, invenio-records-rest, invenio-stats
 python-editor==1.0.3      # via alembic
@@ -150,3 +151,4 @@ whichcraft==0.4.0         # via cookiecutter
 wtforms-alchemy==0.16.1   # via invenio-oauth2server
 wtforms-components==0.10.0  # via wtforms-alchemy
 wtforms==2.1              # via flask-wtf, invenio-files-rest, wtforms-alchemy, wtforms-components
+zipstream-ng         # via B2ShareObjectResource

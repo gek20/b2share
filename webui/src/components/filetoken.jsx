@@ -31,7 +31,7 @@ const FileToken = React.createClass({
         } 
         
         return(
-            <button type="button" className="btn btn-default btn-xs remove" onClick={() => {copyToClipboard(window.location.origin + url ); alert("'"+file_name +"' temporary link copied to clipboard!") }}
+            <button type="button" className="btn btn-default btn-xs remove" onClick={() => {copyToClipboard(window.location.origin + url , "'"+file_name +"' temporary link");}}
                 title="Copy Temporary Access Link">
                 <i className="glyphicon glyphicon-link" />
             </button>

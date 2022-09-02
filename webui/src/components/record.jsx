@@ -443,7 +443,7 @@ const Record = React.createClass({
                 const headers = { "Accept": "application/x-bibtex" };
                 let url = doi
                 if (url.includes("https") == false) { url = doi.replace('http', 'https') }
-                fetch(url, { headers }).then(response => response.text()).then(text => copyToClipboard(text));
+                fetch(url, { headers }).then(response => response.text()).then(text => copyToClipboard(text, "BibTeX"));
             }
             return (
                 <div className="well">
@@ -728,7 +728,7 @@ const Record = React.createClass({
                     </h3>
                     {!schemaID ? false :
                         <span style={{ float: 'right' }}>
-                            <a className="btn btn-xs btn-default" onClick={() => copyToClipboard(schemaID)}
+                            <a className="btn btn-xs btn-default" onClick={() => copyToClipboard(schemaID, "SchemaID")}
                                 title="Copy community block schema identifier used for this record">
                                 <i className="fa fa-clipboard" />
                             </a>

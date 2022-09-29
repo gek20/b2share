@@ -35,7 +35,7 @@ def record_view_event_builder(event, sender_app, pid=None, record=None,
     """Build a record-view event."""
     if not record:
         return event
-    if is_deposit(record):
+    if record.get('$schema', '').endswith('#/draft_json_schema'):
         return None
     event.update(dict(
         # When:

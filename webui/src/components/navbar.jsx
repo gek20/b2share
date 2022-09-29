@@ -54,7 +54,7 @@ const NavbarMenu = React.createClass({
                     </ul>
                     <ul className="nav navbar-nav user">
                       <NavbarUser user={serverCache.getUser()}/>
-                      </ul>
+                    </ul>
               </div>
             </div>
         );
@@ -97,7 +97,7 @@ const NavbarSearch = React.createClass({
         const setStateEvent = ev => this.setState({q: ev.target.value});
         const visibility = this.props.visibility ? "visible" : "hidden";
         return (
-            <form onSubmit={this.search} style={{visibility}}>
+            <form onSubmit={this.search} style={{visibility}} className={`navbar-${visibility}`} >
                 <div className="nav-search">
                     <span className="input-group-btn">
                         <button onClick={this.searchHelp} className="btn btn-default" type="button">

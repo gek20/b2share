@@ -415,7 +415,8 @@ const Record = React.createClass({
         
         try {
             const headers= {"Accept":"text/x-bibliography; style=apa"};
-            const url = doi.replace('http', 'https')
+            let url = doi
+            if (url.includes("https") == false) { url = doi.replace('http', 'https') }
             fetch(url, {headers})
             .then(response => {
                 if(response.ok){

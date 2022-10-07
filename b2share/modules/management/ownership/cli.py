@@ -336,7 +336,6 @@ def transfer_add(user_email, new_user_email, type=None):
 @ownership.command('transfer-remove')
 @with_appcontext
 @click.argument('user-email', required=True, type=str)
-@click.option('--server', envvar='JSONSCHEMAS_HOST')
 @click.option('-t', '--type', type=click.Choice(['deposit', 'record']), required=False)
 @patch_current_app_config({'SERVER_NAME': os.environ.get('JSONSCHEMAS_HOST')})
 def transfer_remove(user_email, type=None):

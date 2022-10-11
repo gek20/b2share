@@ -264,3 +264,12 @@ METAX_PUBLISH_PREFIX='https://etsin.demo.fairdata.fi/dataset/' #URL Used for met
 METAX_DOI_PREFIX='doi:' #Doi prefix for DOI PID:s
 ENABLE_METAX=True #Enables/disables metax. If not provided, defaults to False
 ```
+
+# Known records that does not serialize
+
+```
+{'value': '84832a794ea5442896acd5567944fb3b', 'type': 'b2rec'}
+{'value': 'aa3085799bff4be798342e4c0d66caa3', 'type': 'b2rec'}
+```
+
+These records do not serialize because issues in keywords; keywords on these records are specified as list of strings, not list of objects.

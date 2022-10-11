@@ -66,7 +66,8 @@ def update_expired_embargoes():
                 record.id))
             record['open_access'] = True
             record.commit()
-            update_metax.delay(record)
+            if current_app.config.get('ENABLE_METAX'):
+                update_metax.delay(record)
         db.session.commit()
 
         indexer = RecordIndexer()

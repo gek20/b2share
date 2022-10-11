@@ -21,6 +21,8 @@ def test_fmi_record_creation(app, login_user, test_communities, get_serialized, 
         serialized_record = serialize_to_metax(_record, 'testdatacatalog')
         serialized_record['research_dataset']['preferred_identifier'] = ''
         serialized_record['research_dataset']['other_identifier'] = []
+        serialized_record['research_dataset']['remote_resources'][0]['access_url']['identifier'] = 'https://localhost:5000/records/'
+        serialized_record['research_dataset']['remote_resources'][1]['access_url']['identifier'] = 'https://localhost:5000/records/'
         assert get_serialized == serialized_record
 
 def test_versioned_record(app, login_user, test_communities, get_serialized, get_fmi_one):
@@ -31,6 +33,8 @@ def test_versioned_record(app, login_user, test_communities, get_serialized, get
         serialized_record_1 = serialize_to_metax(_record, 'testdatacatalog')
         serialized_record_1['research_dataset']['preferred_identifier'] = ''
         serialized_record_1['research_dataset']['other_identifier'] = []
+        serialized_record_1['research_dataset']['remote_resources'][0]['access_url']['identifier'] = 'https://localhost:5000/records/'
+        serialized_record_1['research_dataset']['remote_resources'][1]['access_url']['identifier'] = 'https://localhost:5000/records/'
         checker_original = get_serialized
         checker_next = add_versions(checker_original, next_version=get_preferred_identifier(_record_v2))
         assert checker_next == serialized_record_1
@@ -38,6 +42,8 @@ def test_versioned_record(app, login_user, test_communities, get_serialized, get
         serialized_record_2 = serialize_to_metax(_record_v2, 'testdatacatalog')
         serialized_record_2['research_dataset']['preferred_identifier'] = ''
         serialized_record_2['research_dataset']['other_identifier'] = []
+        serialized_record_2['research_dataset']['remote_resources'][0]['access_url']['identifier'] = 'https://localhost:5000/records/'
+        serialized_record_2['research_dataset']['remote_resources'][1]['access_url']['identifier'] = 'https://localhost:5000/records/'
         checker_previous = add_versions(checker_original, previous_version=get_preferred_identifier(_record))
         assert checker_previous == serialized_record_2
 
@@ -67,14 +73,16 @@ def test_record_with_files(app, login_user, test_communities, get_serialized, ge
         serialized_record['research_dataset']['preferred_identifier'] = ''
         serialized_record['research_dataset']['other_identifier'] = []
         checker = get_serialized
+        serialized_record['research_dataset']['remote_resources'][1]['access_url']['identifier'] = 'https://localhost:5000/records/'
+        serialized_record['research_dataset']['remote_resources'][2]['access_url']['identifier'] = 'https://localhost:5000/records/'
         checker['research_dataset']['remote_resources'].insert(0,{
             'title': _record['_files'][0]['key'],
             'access_url': {
-                'identifier': 'https://dev.fmi.b2share.csc.fi/records/' + get_b2rec_id(_record)['value']
+                'identifier': 'https://localhost:5000/records/' + get_b2rec_id(_record)['value']
             },
-            'download_url': {
-                'identifier': _record['_files'][0]['ePIC_PID']
-            },
+            # 'download_url': {
+            #     'identifier': _record['_files'][0]['ePIC_PID']
+            # },
             "use_category":{
                 "in_scheme":"http://uri.suomi.fi/codelist/fairdata/use_category",
                 "identifier":"http://uri.suomi.fi/codelist/fairdata/use_category/code/outcome",

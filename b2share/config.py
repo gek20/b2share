@@ -426,9 +426,10 @@ METAX_API_CATALOG=os.environ.get('METAX_API_CATALOG')
 
 # FOR TESTING AND DEVELOPMENT USE:
 METAX_PUBLISH_PREFIX='https://etsin.demo.fairdata.fi/dataset/'
+METAX_ETSIN_URL='https://etsin.demo.fairdata.fi'
 
 METAX_DOI_PREFIX='doi:'
-ENABLE_METAX=False
+ENABLE_METAX=True
 
 # ePIC PID config
 # ===============

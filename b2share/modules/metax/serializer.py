@@ -24,14 +24,21 @@
 """Serializer for b2share => Metax harvesting"""
 
 from b2share.modules.communities.api import Community
-from flask import current_app
+from flask import current_app, url_for
 from .licenses import licenses
+from urllib.parse import urlunsplit
 
 from invenio_pidrelations.contrib.versioning import PIDVersioning
 from invenio_pidstore.models import PersistentIdentifier
 from invenio_records_files.api import Record
 
 ETSIN_URL = 'https://etsin.demo.fairdata.fi'
+
+def get_record_base_url():
+    return urlunsplit((
+        current_app.config.get('PREFERRED_URL_SCHEME', 'http'),
+        current_app.config['JSONSCHEMAS_HOST'], '', '', ''
+    ))
 
 def _get_id_type_identifier(identifier_type):
     if not identifier_type in ['EISSN', 'Handle', 'ISBN', 'ISSN', 'LISSN', 'LSID', 'PMID', 'UPC', 'wi3d']:
@@ -66,7 +73,6 @@ def get_other_identifier(rec):
     if pid:
         ret.append({
             "notation": pid['value']
-            # TODO other fields
         })
     for a in rec.get('alternate_identifiers', []):
         if a['alternate_identifier'].startswith('https://etsin'):
@@ -116,7 +122,10 @@ def get_member_of(creator):
                 "name": {"en": creator.get('affiliations',[])[0].get('affiliation_name')}
             }
     except:
-        return None
+        return {
+                "@type": "Organization",
+                "identifier": get_org_id(None)
+            }
 
 def get_creator(rec):
     ret = []
@@ -325,16 +334,17 @@ def get_temporal(record):
 
 def get_remote_resources(record):
     ret = []
-    # record_url = make_record_url(get_b2rec_id(record)['value'])
-    record_url = 'https://dev.fmi.b2share.csc.fi/records/' + get_b2rec_id(record)['value']
+    if record.get('embargo_date') and not record.get('open_access'):
+        return ret
+    with current_app.test_request_context('/', base_url=get_record_base_url()):
+        record_url = url_for('b2share_records_rest.b2rec_item',
+                        pid_value=get_b2rec_id(record)['value'], _external=True)
+    # record_url = 'https://dev.fmi.b2share.csc.fi/records/' + get_b2rec_id(record)['value']
     for f in record.get('_files', []):
         ret.append({
             'title': f['key'],
             'access_url': {
                 'identifier': record_url
-            },
-            'download_url': {
-                'identifier': f['ePIC_PID']
             },
             "use_category":{
                 "in_scheme":"http://uri.suomi.fi/codelist/fairdata/use_category",
@@ -351,8 +361,8 @@ def get_remote_resources(record):
     for url in get_community_specific(record).get('external_url'):
         ret.append({
             "title": "External data",
-            "download_url":{
-                "identifier": url
+            'access_url': {
+                'identifier': record_url
             },
             "use_category":{
                 "in_scheme":"http://uri.suomi.fi/codelist/fairdata/use_category",
@@ -406,8 +416,7 @@ def _get_relation_type(related_identifier):
 def get_relation(record):
     ret = []
     for ri in record.get('related_identifiers', []):
-        if not ETSIN_URL in ri['related_identifier']:
-            # TODO: Check this
+        if not current_app.config.get('METAX_ETSIN_URL') in ri['related_identifier']:
             ret.append({
                 "entity": {
                     "identifier": ri['related_identifier'],

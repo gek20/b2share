@@ -155,8 +155,8 @@ serialized = {
         'title': {'en': fmi_record_one['titles'][0]['title']},
         'description': {'en': fmi_record_one['descriptions'][0]['description']},
         'creator': [
-            {'@type': 'Person', 'name': 'Glados, R.'},
-            {'@type': 'Person', 'name': 'Cube, Companion'}
+            {'@type': 'Person', 'name': 'Glados, R.', 'member_of': {'@type': 'Organization', 'identifier': 'http://uri.suomi.fi/codelist/fairdata/organization/code/4940015'}},
+            {'@type': 'Person', 'name': 'Cube, Companion', 'member_of': {'@type': 'Organization', 'identifier': 'http://uri.suomi.fi/codelist/fairdata/organization/code/4940015'}}
         ],
         'publisher': {
             '@type': 'Organization',
@@ -198,8 +198,8 @@ serialized = {
         'remote_resources': [
             {
                 "title": "External data",
-                "download_url":{
-                    "identifier": 'https://b2share.eudat.eu'
+                "access_url":{
+                    "identifier": 'https://localhost:5000/records/'
                 },
                 "use_category":{
                     "in_scheme":"http://uri.suomi.fi/codelist/fairdata/use_category",
@@ -211,8 +211,8 @@ serialized = {
                 }
             },{
                 "title": "External data",
-                "download_url":{
-                    "identifier": 'https://csc.fi'
+                "access_url":{
+                    "identifier": 'https://localhost:5000/records/'
                 },
                 "use_category":{
                     "in_scheme":"http://uri.suomi.fi/codelist/fairdata/use_category",

@@ -298,10 +298,16 @@ const Record = React.createClass({
         }
 
         function getTotalFileSize(files) {
-            console.log(files)
-            const bytes = files.reduce((a, o) => {
-                return a + o.get('size', 0)
-            }, 0)
+            let bytes = 0
+            try {
+                bytes = files.reduce((a, o) => {
+                    return a + o.get('size', 0)
+                }, 0)
+            } catch (e) {
+                // Try fails on embargoes; No files
+                console.error('Exception occurred: ', e)
+                return '0 Bytes'
+            }
             const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
             if (!+bytes) return '0 Bytes';
             const divider = 1024;

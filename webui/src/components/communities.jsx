@@ -28,6 +28,7 @@ export const CommunityRoute = React.createClass({
         const { id } = this.props.params; // community id or name
         const community = serverCache.getCommunity(id);
         if (!community) {
+            console.log("Community",community)
             return <Wait/>;
         }
         if (community instanceof Error) {
@@ -144,6 +145,7 @@ const Community = React.createClass({
         const latestRecords = serverCache.getLatestRecordsOfCommunity({community: community.get('id')});
         const rootSchema = this.props.rootSchema;
         if (!rootSchema) {
+            console.log("RootSchema",rootSchema)
             return <Wait />;
         }
         const envelopedRootSchema = fromJS({

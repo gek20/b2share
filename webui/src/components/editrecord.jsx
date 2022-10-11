@@ -65,6 +65,7 @@ export const EditRecordRoute = React.createClass({
     render() {
         const record = this.getRecordOrDraft();
         if (!record) {
+            console.log("Record", record)
             return <Wait/>;
         }
         if (record instanceof Error) {
@@ -78,6 +79,7 @@ export const EditRecordRoute = React.createClass({
         // need to be owner or community admin
         const canEdit = canEditRecord(record);
         if (canEdit === null) {
+            console.log("canEdit", canEdit)
             return <Wait/>;
         } else if (!canEdit) {
             return <Err err={{code: 403, text: "Permission denied"}}/>;
@@ -98,6 +100,7 @@ export const EditRecordRoute = React.createClass({
 const EditRecordSmallCommunity = React.createClass({
     render() {
         if (!this.props.data) {
+            console.log("Data",this.props.data)
             return <Wait/>;
         }
         return (
@@ -988,6 +991,7 @@ const EditRecord = React.createClass({
         const rootSchema = this.props.rootSchema;
         const blockSchemas = this.props.blockSchemas;
         if (!this.props.record || !rootSchema) {
+            console.log("RootSchema",rootSchema)
             return <Wait/>;
         }
         const editTitle = "Editing " + (this.props.isDraft ? "draft" : "record") + (this.props.isVersion ?  " version": "");

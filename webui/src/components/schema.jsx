@@ -104,6 +104,7 @@ export const Schema = React.createClass({
     render() {
         const schema = this.props.schema;
         if (!schema) {
+            console.log("Schema",schema)
             return <Wait/>;
         }
         const jschema = schema.get('json_schema');

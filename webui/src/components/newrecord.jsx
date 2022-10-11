@@ -57,6 +57,7 @@ export const NewRecordRoute = React.createClass({
 
     renderCommunityList(communities) {
         if (!communities) {
+            console.log("Communities",communities)
             return <Wait/>;
         }
         return (

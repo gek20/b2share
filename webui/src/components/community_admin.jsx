@@ -44,6 +44,7 @@ export const CommunityAdmin = React.createClass({
             return this.renderNoUser();
         }
         if (!community) {
+            console.log("Community", community)
             return <Wait/>;
         }
         if (community instanceof Error) {
@@ -96,6 +97,7 @@ export const CommunityAdmin = React.createClass({
 export const UsersTable = React.createClass({
     render() {
         if (!this.props.users) {
+            console.log("User", this.props.user)
             return <Wait/>;
         }
         var rows = [];
@@ -131,6 +133,7 @@ export const UsersTable = React.createClass({
 export const UserRow = React.createClass({
     render(){
         if (!this.props.roles) {
+            console.log("Role", this.props.roles)
             return <Wait/>;
         }
 

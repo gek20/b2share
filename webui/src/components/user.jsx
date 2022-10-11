@@ -202,6 +202,7 @@ const TokenList = React.createClass({
     render() {
         const tokenList = serverCache.getUserTokens();
         if (!tokenList) {
+            console.log("UserToken",tokenList)
             return <Wait/>;
         }
         if (tokenList instanceof Error) {

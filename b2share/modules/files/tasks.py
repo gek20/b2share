@@ -62,7 +62,8 @@ def notify_admin():
                ObjectVersion.file_id == FileInstance.id,
                FileInstance.last_check == False).all()
     # Get all files for which an error occurred while verifying their checksum
-    error_count = FileInstance.query.filter_by(last_check=None).count()
+    error_files_none = FileInstance.query.filter_by(last_check=None)
+    error_count = error_files_none.count()
     if error_count != 0:
         error_files = db.session.query(RecordsBuckets.record_id,
                                 ObjectVersion.bucket_id,
@@ -82,15 +83,26 @@ def notify_admin():
             '<br/><br/>'.join([_format_file_info(info) for info in results])
         )
     if error_count != 0:
-        msg_content += ('{0}: {1}<br/><br/>{2}:<br/><br/>{3}<br/><br/>'.format(
-            _('Number of files for which an error occurred during the '
-              'checksum verification (other than a wrong checksum)'),
-            str(error_count),
-            _('Partial list of files with errors'),
-            '<br/><br/>'.join([
-                _format_file_info(info) for info in error_files
-            ])
-        ))
+        if len(error_files)>0:
+            msg_content += ('{0}: {1}<br/><br/>{2}:<br/><br/>{3}<br/><br/>'.format(
+                _('Number of files for which an error occurred during the '
+                'checksum verification (other than a wrong checksum)'),
+                str(error_count),
+                _('Partial list of files with errors'),
+                '<br/><br/>'.join([
+                    _format_file_info(info) for info in error_files
+                ])
+            ))
+        else:
+             msg_content += ('{0}: {1}<br/><br/>{2}:<br/><br/>{3}<br/><br/>'.format(
+                _('Something unexpected happened during '
+                'checksum verification. Please check celery log!<br/>Number of files with unexpected behaviour'),
+                str(error_count),
+                _('Partial list of files with errors'),
+                '<br/><br/>'.join([
+                    'File Id: {0}<br/> File URI: {1}<br/> Checksum: {2}<br/>'.format(file.id,file.uri, file.checksum) for file in error_files_none.limit(100).all()
+                ])
+            ))
     if msg_content:
         msg_content += '-- <br>{0} "{1}"'.format(
             _('B2SHARE automatic task for server'),

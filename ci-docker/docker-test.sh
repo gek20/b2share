@@ -26,6 +26,11 @@ then
     echo "We have fails!"
     grep "[1-9]\d* failed" ../logs.log
     exit 1
+elif grep -q "[1-9]\d* xfailed" ../logs.log
+then
+    echo "We have accepted fails (xfailed)!"
+    grep "[1-9]\d* xfailed" ../logs.log
+    exit 22
 else
     echo "No failures!"
 fi

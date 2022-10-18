@@ -115,6 +115,9 @@ stages:
     - cd ./ci-docker
     - docker-compose -f ./docker-compose.test.yml build
     - ./docker-test.sh
+  allow_failure:
+    exit_codes: # Allow failure on xfailed
+      - 22
   artifacts:
     paths:
       - logs.log

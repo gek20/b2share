@@ -288,16 +288,17 @@ def test_records_serializers_datacite4(app, test_records_data):
         assert datacite('creators/d:creator/d:givenName')\
             == [c['given_name'] for c in record['creators'] if c.get('given_name')]
         assert datacite('creators/d:creator/d:familyName')\
-            == [c['last_name'] for c in record['creators'] if c.get('family_name')]
+            == [c['family_name'] for c in record['creators'] if c.get('family_name')]
         assert datacite('contributors/d:contributor/d:givenName')\
             == [c['given_name'] for c in record['contributors'] if c.get('given_name')]
         assert datacite('contributors/d:contributor/d:familyName')\
             == [c.get('family_name') for c in record['contributors'] if c.get('family_name')]
 
-        assert datacite('dates/d:date') == [d['date'] for d in record['dates']]
-        assert datacite('dates/d:dateType') == [d['date_type'] for d in record['dates']]
-        assert datacite('dates/d:dateInformation')\
-            == [d.get('date_information') for d in record.get('dates', [])]
+        # not "dates" in record
+        # assert datacite('dates/d:date') == [d['date'] for d in record['dates']]
+        # assert datacite('dates/d:dateType') == [d['date_type'] for d in record['dates']]
+        # assert datacite('dates/d:dateInformation')\
+        #     == [d.get('date_information') for d in record.get('dates', [])]
 
         assert datacite('relatedIdentifiers/d:relatedIdentifier')\
             == [i['related_identifier'] for i in record['related_identifiers']]
@@ -322,12 +323,10 @@ def test_records_serializers_datacite4(app, test_records_data):
         assert datacite('geoLocations/d:geoLocation/d:geoLocationPolygon/d:polygonPoint/d:pointLongitude')\
             == [str(p['point_longitude']) for p in record['spatial_coverages'][3]['polygons'][0]['polygon']]
         assert datacite('geoLocations/d:geoLocation/d:geoLocationPolygon/d:polygonPoint/d:pointLatitude')\
-            == [p['point_latitude'] for p in record['spatial_coverages'][3]['polygons'][0]['polygon']]
+            == [str(p['point_latitude']) for p in record['spatial_coverages'][3]['polygons'][0]['polygon']]
         assert datacite('geoLocations/d:geoLocation/d:geoLocationPolygon/d:inPolygonPoint/d:*')\
-            == [record['spatial_coverages'][0]['polygons'][0]['inpoint'][k] for k in ['point_longitude', 'point_latitude']]
+            == [str(record['spatial_coverages'][3]['polygons'][0]['inpoint'][k]) for k in ['point_longitude', 'point_latitude']]
 
-        assert datacite('contributors/d:familyName') == [c['family_name'] for c in record['contributors'] if c.get('family_name')]
-        assert datacite('contributors/d:nameIdentifier') == [c['name_identifier'] for c in record['contributors'] if c.get('name_identifier')]
         affiliations = []
         for c in record['contributors']:
             if c.get('affiliations'):

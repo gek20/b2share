@@ -10,7 +10,7 @@ import { keys, humanSize } from '../data/misc';
 import { ReplaceAnimate } from './animate.jsx';
 import { ImplodedList } from './common.jsx';
 import { Wait, Err } from './waiting.jsx';
-import { FileRecordHeader, FileRecordRow, PersistentIdentifier, copyToClipboard } from './editfiles.jsx';
+import { FileRecordHeader, FileRecordRow, PersistentIdentifier, copyToClipboard} from './editfiles.jsx';
 import { Versions } from './versions.jsx';
 import { getSchemaOrderedMajorAndMinorFields } from './schema.jsx';
 import PiwikTracker from 'piwik-react-router';
@@ -297,25 +297,16 @@ const Record = React.createClass({
             return amount;
         }
 
-        function getTotalFileSize(files) {
+        function renderStats(recordData){
             let bytes = 0
             try {
-                bytes = files.reduce((a, o) => {
-                    return a + o.get('size', 0)
-                }, 0)
-            } catch (e) {
-                // Try fails on embargoes; No files
-                console.error('Exception occurred: ', e)
-                return '0 Bytes'
+                bytes = recordData.get("files").reduce((a, o) => {return a + o.get('size', 0)}, 0)
+                var size = humanSize(bytes)
+            } catch (error) {
+                //If record doesn't have any files this makes it 0 bytes
+                var size = "0 Bytes"   
             }
-            const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-            if (!+bytes) return '0 Bytes';
-            const divider = 1024;
-            const i = Math.floor(Math.log(bytes) / Math.log(divider));
-            return `${parseFloat((bytes / Math.pow(divider, i)).toFixed(1))} ${units[i]}`;
-        }
 
-        function renderStats(recordData){            
             return (
                 <div>
                     <div className="statistic-row">
@@ -331,7 +322,7 @@ const Record = React.createClass({
                             <span>Files</span><span>{parseThousands(recordData.get("files").size)}</span> 
                         </p>
                         <p className="stat">
-                            <span>Total Size</span><span>{getTotalFileSize(recordData.get("files"))}</span>   
+                            <span>Total Size</span><span>{size}</span>   
                         </p>
                     </div>
                 </div>

@@ -39,19 +39,12 @@ export function countProps(o) {
 
 
 export function humanSize(sz) {
-    let K = 1000, M = K*K, G = K*M, T = K*G;
+    const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    if (!+sz) return '0 Bytes';
+    const divider = 1000;
+    const i = Math.floor(Math.log(sz) / Math.log(divider));
 
-    if (sz < K) {
-        return [sz,' B'];
-    } else if (sz < M) {
-        return [(sz/K).toFixed(2), ' KB'];
-    } else if (sz < G) {
-        return [(sz/M).toFixed(2), ' MB'];
-    } else if (sz < T) {
-        return [(sz/G).toFixed(2), ' GB'];
-    } else {
-        return [(sz/T).toFixed(2), ' TB'];
-    }
+    return `${parseFloat((sz / Math.pow(divider, i)).toFixed(1))} ${units[i]}`;
 }
 
 export function keys(o) {

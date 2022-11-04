@@ -782,6 +782,8 @@ export const FileRecordRow = React.createClass({
 });
 
 
+
+
 const FileRemoveDialog = React.createClass({
     propTypes: {
         file: PT.object.isRequired,
@@ -870,12 +872,3 @@ export function copyToClipboard(text, info) {
     }
     document.body.removeChild(textArea);
 }
-
-// export function FetchStats(url, requestOptions){
-
-//     fetch(url, requestOptions)
-//         .then(response => {if(response.ok){return response.text()}}).then(text=>this.setState({data: text.replace(/<\/?i>/g, "")}))
-//     console.log("")  
-//     return "something"
-
-// }

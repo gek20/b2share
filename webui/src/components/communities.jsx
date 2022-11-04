@@ -2,12 +2,12 @@ import React from 'react/lib/ReactWithAddons';
 import { Link } from 'react-router'
 import { fromJS } from 'immutable';
 import { serverCache, Error } from '../data/server';
-import { pairs } from '../data/misc';
+import { pairs , humanSize} from '../data/misc';
 import { Wait, Err } from './waiting.jsx';
 import { Schema } from './schema.jsx';
 import { ReplaceAnimate } from './animate.jsx';
 import { LatestRecords } from './latest_records.jsx';
-import { PersistentIdentifier } from './editfiles.jsx';
+import { PersistentIdentifier} from './editfiles.jsx';
 
 
 export const CommunityListRoute = React.createClass({
@@ -86,15 +86,6 @@ const CommunityList = React.createClass({
 const Community = React.createClass({
     mixins: [React.addons.PureRenderMixin],
 
-    parseBytes(bytes) {
-        // Parse bytes to nicer units
-        const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        if (!+bytes) return '0 Bytes';
-        const divider = 1024;
-        const i = Math.floor(Math.log(bytes) / Math.log(divider));
-        return `${parseFloat((bytes / Math.pow(divider, i)).toFixed(1))} ${units[i]}`;
-    },
-    
     parseThousands(amount) {
         // Parse bytes to nicer units
         if (!+amount) return '0';
@@ -158,7 +149,7 @@ const Community = React.createClass({
                                     <span>Files</span><span>{this.parseThousands(community.get("communityFileAmountTotal"))}</span>
                                 </p>
                                 <p className="stat">
-                                    <span>File size</span><span>{this.parseBytes(community.get("communityFileSizeTotal"))}</span>
+                                    <span>File size</span><span>{humanSize(community.get("communityFileSizeTotal"))}</span>
                                 </p>
                             </div>
                         </div>

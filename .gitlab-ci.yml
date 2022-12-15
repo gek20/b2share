@@ -11,7 +11,7 @@ variables:
   DEFAULT_TAG: 2.2.3
   SAST_GOSEC_LEVEL: 2
   # The URL of your Vault server, such as https://vault.example.com:8200. Required.
-  VAULT_SERVER_URL: https://dev.vault.eudat.csc.fi:8200
+  VAULT_SERVER_URL: https://staging.vault.eudat.csc.fi:8200
   # The role to use when attempting to authenticate. Optional. If no role is specified, Vault uses the default role specified when the authentication method was configured.
   VAULT_AUTH_ROLE: gitlab-b2share-fmi-build-role
 

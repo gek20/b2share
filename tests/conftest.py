@@ -106,7 +106,8 @@ def base_app():
             'B': 'B2SafePid',
             'S': 'Standard',
             'A': 'Archive',
-        }
+        },
+        LOGGING_LEVEL='CRITICAL'
     )
 
     # Disable most of alembic logging.

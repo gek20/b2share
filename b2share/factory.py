@@ -16,10 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with B2Share; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
-#
-# In applying this license, CERN does not
-# waive the privileges and immunities granted to it by virtue of its status
-# as an Intergovernmental Organization or submit itself to any jurisdiction.
 
 """Application factory creating the B2SHARE application.
 
@@ -125,11 +121,23 @@ instance_path = os.getenv(env_prefix + '_INSTANCE_PATH') or \
     os.path.join(sys.prefix, 'var', 'b2share-instance')
 """Instance path for B2Share."""
 
+
+# Use B2SHARE config_loader if it exists.
+def get_config_loader(env_prefix):
+    """Return B2SHARE config loader if available. Otherwise invenio loader."""
+    try:
+        from b2share.modules.configloader import create_b2share_config_loader
+        return create_b2share_config_loader(config=config, env_prefix=env_prefix)
+    except (ModuleNotFoundError,ImportError):
+        # Error handling. Revert back to using just Invenio config_loader
+        return create_conf_loader(config=config, env_prefix=env_prefix)
+
+
 def create_api(*args, **kwargs):
     """Create Flask application providing B2SHARE REST API."""
     app = create_app_factory(
         'b2share',
-        config_loader=config_loader,
+        config_loader=get_config_loader(env_prefix),
         extension_entry_points=['invenio_base.api_apps'],
         blueprint_entry_points=['invenio_base.api_blueprints'],
         converter_entry_points=['invenio_base.api_converters'],
@@ -220,7 +228,6 @@ def check_configuration(config, logger):
             error(f"Configuration variable expected: {var_name}")
 
     check('SQLALCHEMY_DATABASE_URI')
-    # check('B2SHARE_SECRET_KEY')
     check('SECRET_KEY')
     check('JSONSCHEMAS_HOST')
     check('PREFERRED_URL_SCHEME')

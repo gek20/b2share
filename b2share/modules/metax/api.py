@@ -52,6 +52,7 @@ def get_record_metax_identifier(rec):
 
 def metax_update_metadata(record):
     """Update already harvested records metadata to metax"""
+    logger = current_app.logger
     try:
         json = serialize_to_metax(record, current_app.config.get('METAX_API_CATALOG'))
     except:
@@ -60,10 +61,23 @@ def metax_update_metadata(record):
     url_identifier = get_record_metax_identifier(record)
     if not url_identifier:
         return False
-    response = requests.patch(current_app.config.get('METAX_API_URL')+'/'+url_identifier, json=json, auth=auth)
-    response_json = response.json()
-    if response_json:
-        return True
+    try:
+        response = requests.patch(current_app.config.get('METAX_API_URL')+'/'+url_identifier, json=json, auth=auth)
+        response_json = response.json()
+        response_code = response.status_code
+        if response_json and response_code == 200:
+            return True
+        # No retry if problem in serializer
+        if response_code == 400:
+            logger.warning('HTTP error from Metax: {}'.format(response_json))
+            return False
+    except requests.exceptions.RequestException as e:
+        logger.warning('Received error from metax: {}'.format(e))
+    # Retry update after 15 minutes
+    # Import here to prevent circular import error
+    from b2share.modules.metax.tasks import update_metax
+    update_metax.apply_async(record, countdown=900)
+    logger.warning('Update rescheduled for record: {}'.format(get_b2rec_id(record)))
     return False
 
 def metax_publish(record):

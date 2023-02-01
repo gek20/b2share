@@ -79,7 +79,10 @@ ADD setup.py setup.py
 ADD b2share/version.py b2share/version.py
 ADD requirements.txt requirements.txt
 COPY shim/get-agent-values.py /usr/local/bin/
-# COPY wheels wheels
+
+# Add wheel cache
+RUN curl -o wheels.tar https://a3s.fi/swift/v1/AUTH_684b53b6e8094581b13ece74e79f489b/wheel-storage/wheels.tar && \
+    tar -xvf wheels.tar
 
 # install test_requirements.txt
 RUN pip3 install --find-links=./wheels -r requirements.txt && \

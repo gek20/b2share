@@ -37,7 +37,6 @@ from invenio_files_rest.signals import file_downloaded
 from webargs import fields
 from webargs.flaskparser import use_kwargs
 
-from b2handle.handleclient import EUDATHandleClient
 
 # don't register blueprint instead of replace the object_view
 # .ext.replace_files_rest_object_view()

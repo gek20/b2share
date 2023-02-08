@@ -41,6 +41,8 @@ stages:
     - cd webui && npm install --unsafe-perm
     - ./node_modules/webpack/bin/webpack.js -p
     - cd ..
+    # Public license selector
+    - ./ci-scripts/build-license-selector.sh
   artifacts:
     paths:
       - webui

@@ -40,19 +40,19 @@ ENV B2SHARE_WEBUI_MATOMO_SITEID=''
 # Install public-license-selector
 #
 
-WORKDIR /eudat
-RUN git clone https://github.com/EUDAT-B2SHARE/public-license-selector.git && \
-    cd public-license-selector && \
-    npm install && \
-    node --version && npm --version && \
-    mv webpack.config.js webpack.config.js.0 && \
-    echo "require('es6-promise').polyfill();" > webpack.config.js && \
-    cat webpack.config.js.0 >> webpack.config.js && \
-    npm install es6-promise && \
-    npm run build && \
-    node_modules/webpack/bin/webpack.js -p  && \
-    mkdir -p /eudat/b2share/webui/app/vendors && \
-    cp dist/license-selector.* /eudat/b2share/webui/app/vendors/
+# WORKDIR /eudat
+# RUN git clone https://github.com/EUDAT-B2SHARE/public-license-selector.git && \
+#     cd public-license-selector && \
+#     npm install && \
+#     node --version && npm --version && \
+#     mv webpack.config.js webpack.config.js.0 && \
+#     echo "require('es6-promise').polyfill();" > webpack.config.js && \
+#     cat webpack.config.js.0 >> webpack.config.js && \
+#     npm install es6-promise && \
+#     npm run build && \
+#     node_modules/webpack/bin/webpack.js -p  && \
+#     mkdir -p /eudat/b2share/webui/app/vendors && \
+#     cp dist/license-selector.* /eudat/b2share/webui/app/vendors/
 
 
 #

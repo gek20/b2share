@@ -125,6 +125,10 @@ stages:
     paths:
       - logs.log
     expire_in: 1 day
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: results.xml
 
 build-ui:
   when: always

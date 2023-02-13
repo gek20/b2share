@@ -4,8 +4,9 @@ docker-compose -f docker-compose.test.yml up -d
 sleep 60
 
 docker ps -a
+ID=$(docker container ls -qf "name=tests")
 
-while docker ps | grep 'tests'
+while ! docker logs --tail 1 "$ID" | grep 'TESTS READY'
 do
     printf "\n"
     echo "Waiting for tests to complete, please be patient. Status:"
@@ -16,6 +17,8 @@ done
 echo "Tests has completed"
 
 docker logs -t tests > ../logs.log
+
+docker cp "$ID":/eudat/b2share/results.xml ../results.xml
 
 docker-compose -f docker-compose.test.yml down
 

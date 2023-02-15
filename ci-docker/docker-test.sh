@@ -18,7 +18,8 @@ echo "Tests has completed"
 
 docker logs -t tests > ../logs.log
 
-docker cp "$ID":/eudat/b2share/results.xml ../results.xml
+docker cp "$ID":/eudat/b2share/coverage.xml ../coverage.xml
+docker cp "$ID":/eudat/b2share/junit.xml ../junit.xml
 
 docker-compose -f docker-compose.test.yml down
 

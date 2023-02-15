@@ -121,6 +121,7 @@ stages:
   allow_failure:
     exit_codes: # Allow failure on xfailed
       - 22
+  coverage: '/(?i).*total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     paths:
       - logs.log
@@ -128,7 +129,8 @@ stages:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: results.xml
+        path: coverage.xml
+      junit: junit.xml
 
 build-ui:
   when: always

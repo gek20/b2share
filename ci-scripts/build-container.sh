@@ -33,9 +33,14 @@ jf config show
 docker build \
   --rm \
   --cache-from ${IMAGE} \
+  --label "commit_ssha=$CI_COMMIT_SHA" \
+  --label "commit_message=$CI_COMMIT_TITLE" \
+  --label "commit_branch=$CI_COMMIT_BRANCH" \
+  --label "commit_timestamp=$CI_COMMIT_TIMESTAMP" \
   -t ${IMAGE} \
   -t ${IMAGE_TAGGED} \
   -f ./dockerize/Dockerfile .
+  
 
 # Use JFrog CLI for pushing the images to artifactory
 jf rt dp ${IMAGE} eudat-docker --build-name=${JF_BUILD_NAME} --build-number=${JF_BUILD_NUMBER}

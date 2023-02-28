@@ -147,5 +147,4 @@ build-container:
 run-unit-tests:
   only:
     - merge_requests
-    - master
   <<: *unit_tests

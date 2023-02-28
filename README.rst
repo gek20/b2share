@@ -21,17 +21,18 @@
 
 B2SHARE
 =======
-.. image:: https://img.shields.io/travis/EUDAT-B2SHARE/b2share.svg
-        :target: https://travis-ci.org/EUDAT-B2SHARE/b2share
-
-.. image:: https://coveralls.io/repos/github/EUDAT-B2SHARE/b2share/badge.svg?branch=master
-        :target: https://coveralls.io/github/EUDAT-B2SHARE/b2share?branch=master
 
 .. image:: https://img.shields.io/github/tag/EUDAT-B2SHARE/b2share.svg
         :target: https://github.com/EUDAT-B2SHARE/b2share/releases
 
 .. image:: https://img.shields.io/github/license/EUDAT-B2SHARE/b2share.svg
         :target: https://github.com/EUDAT-B2SHARE/b2share/blob/master/LICENSE
+
+.. image:: https://gitlab.ci.csc.fi/eudat/b2share/fmi-b2share-source/badges/master/coverage.svg?job=run-unit-tests&key_text=Unit+Test+Coverage&key_width=130
+        :target: https://gitlab.ci.csc.fi/eudat/b2share/fmi-b2share-source/commits/master
+
+.. image:: https://gitlab.ci.csc.fi/eudat/b2share/fmi-b2share-source/badges/master/pipeline.svg
+        :target: https://gitlab.ci.csc.fi/eudat/b2share/fmi-b2share-source/commits/master
 
 B2SHARE is an user-friendly, secure, robust, reliable, and trusted service to share and publish your **research data**. B2SHARE is able to add value to your research data via (domain tailored) metadata, and assigning Persistent Identifiers `PIDs <http://www.pidconsortium.eu/>`_ to ensure long-lasting access and references. B2SHARE is one of the B2 services developed via `EUDAT <http://www.eudat.eu/>`_.
 

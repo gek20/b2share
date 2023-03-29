@@ -8,7 +8,7 @@ include:
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   DEFAULT_IMAGE: b2share-fmi
-  DEFAULT_TAG: 2.2.3
+  DEFAULT_TAG: 2.3.0
   SAST_GOSEC_LEVEL: 2
   # The URL of your Vault server, such as https://vault.example.com:8200. Required.
   VAULT_SERVER_URL: https://staging.vault.eudat.csc.fi:8200
